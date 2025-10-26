@@ -3,7 +3,6 @@
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Livewire\Profile\Auth\ConfirmPassword;
 use App\Livewire\Profile\Auth\ForgotPassword;
-use App\Livewire\Profile\Auth\Login;
 use App\Livewire\Profile\Auth\ResetPassword;
 use App\Livewire\Profile\Auth\VerifyEmail;
 use Illuminate\Support\Facades\Route;
@@ -14,7 +13,7 @@ Route::middleware('guest')->group(function () {
     Route::get('register', Register::class)
         ->name('register');
 
-    Route::get('login', Login::class)
+    Volt::route('login', 'profile.auth.login')
         ->name('login');
 
     Route::get('forgot-password', ForgotPassword::class)->name('password.request');
