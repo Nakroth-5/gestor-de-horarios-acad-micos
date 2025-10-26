@@ -4,6 +4,7 @@ namespace App\Livewire\UserSecurity;
 
 use AllowDynamicProperties as AllowDynamicPropertiesAlias;
 use App\Livewire\Forms\UserForm;
+use \App\Models\User as UserModel;
 use Exception;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
@@ -85,7 +86,7 @@ class User extends Component
             $passwordData = $this->form->getPasswordData();
 
             if ($this->editing) {
-                $user = \App\Models\User::find($this->form->editing_id);
+                $user = UserModel::find($this->form->editing_id);
                 if (!$user) {
                     session()->flash('error', 'User not found.');
                     return;
@@ -99,7 +100,7 @@ class User extends Component
                 session()->flash('success', 'User updated successfully.');
             } else {
                 $userData['password'] = $passwordData;
-                $user = \App\Models\User::create($userData);
+                $user = UserModel::create($userData);
                 $user->roles()->sync($this->form->roles);
                 session()->flash('success', 'User created successfully.');
             }
@@ -113,7 +114,7 @@ class User extends Component
     public function delete($id): void
     {
         try {
-            $user = \App\Models\User::find($id);
+            $user = UserModel::find($id);
             if ($user) {
                 $user->delete();
                 session()->flash('message', 'Usuario eliminado correctamente');

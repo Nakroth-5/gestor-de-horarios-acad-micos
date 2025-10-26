@@ -44,8 +44,8 @@
             </div>
 
             <div>
-                <x-input-label for="permissions" :value="__('Permisos')"/>
-                <x-table.select
+                <x-input-label for="permissions" :value="__('Permisos')" />
+                <select
                     wire:model="form.permissions"
                     id="permissions"
                     multiple
@@ -53,8 +53,8 @@
                     @foreach($relations as $permission)
                         <option value="{{ $permission->id }}">{{ $permission->name }}</option>
                     @endforeach
-                </x-table.select>
-                <x-input-error class="mt-2" :messages="$errors->get('form.permissions')"/>
+                </select>
+                <x-input-error class="mt-2" :messages="$errors->get('form.permissions')" />
             </div>
         </div>
     </div>

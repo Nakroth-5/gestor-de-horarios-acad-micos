@@ -21,7 +21,6 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'code',
         'name',
         'last_name',
         'phone',
@@ -90,9 +89,12 @@ class User extends Authenticatable
     {
         parent::boot();
         static::creating(function ($model) {
-            do {
-                $code = rand(100000, 999999);
-            } while (self::where('code', $code)->exists());
+            if (empty($model->code) || $model->code == 0) {
+                do {
+                    $code = rand(100000, 999999);
+                } while (self::where('code', $code)->exists());
+                $model->code = $code;
+            }
         });
     }
 }

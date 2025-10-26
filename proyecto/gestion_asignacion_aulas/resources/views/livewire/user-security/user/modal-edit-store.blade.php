@@ -94,7 +94,7 @@
     {{--Role(s) --}}
     <div>
         <x-input-label for="roles" :value="__('Roles')"/>
-        <x-table.select
+        <select
             wire:model="form.roles" id="roles"
             multiple
             required
@@ -102,7 +102,7 @@
             @foreach($relations as $role)
                 <option value="{{ $role->id }}">{{ $role->name }}</option>
             @endforeach
-        </x-table.select>
+        </select>
         <x-input-error class="mt-2" :messages="$errors->get('form.roles')"/>
     </div>
 </x-modal-base>
