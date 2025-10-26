@@ -1,8 +1,6 @@
 <?php
 
 use App\Models\User;
-use Livewire\Livewire;
-
 use Livewire\Volt\Volt;
 
 test('login screen can be rendered', function () {
@@ -10,15 +8,13 @@ test('login screen can be rendered', function () {
 
     $response
         ->assertOk()
-        ->assertSeeVolt('profile.auth.login');
-
+        ->assertSeeVolt('pages.auth.login');
 });
 
-test('users can authenticate using the login screen', closure: function () {
+test('users can authenticate using the login screen', function () {
     $user = User::factory()->create();
 
-
-    $component = Volt::test('profile.auth.login')
+    $component = Volt::test('pages.auth.login')
         ->set('form.email', $user->email)
         ->set('form.password', 'password');
 
@@ -34,7 +30,7 @@ test('users can authenticate using the login screen', closure: function () {
 test('users can not authenticate with invalid password', function () {
     $user = User::factory()->create();
 
-    $component = Volt::test('profile.auth.login')
+    $component = Volt::test('pages.auth.login')
         ->set('form.email', $user->email)
         ->set('form.password', 'wrong-password');
 
