@@ -1,0 +1,12 @@
+<div>
+    <x-table.data-table
+        :items="$roles"
+        header="livewire.role.components.header-role"
+        table-header="livewire.role.components.table-header"
+        table-rows="livewire.role.components.table-rows"
+        modal="livewire.role.modal-edit-store"
+        :editing="$editing"
+        :relations="$allPermissions"
+        :search="$search"
+        :show="$show"/>
+</div>
