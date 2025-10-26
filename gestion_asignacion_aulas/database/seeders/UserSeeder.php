@@ -18,7 +18,7 @@ class UserSeeder extends Seeder
                 'last_name' => 'Rodríguez',
                 'phone' => '77712345',
                 'address' => 'Santa Cruz',
-                'email' => 'zata@gmail.com',
+                'email' => 'evertha304@gmail.com',
                 'document_type' => 'CI',
                 'document_number' => '1234567',
                 'is_active' => true,
