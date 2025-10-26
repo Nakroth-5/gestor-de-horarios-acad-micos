@@ -1,8 +1,8 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use app\Livewire\RoleManager;
-use app\Livewire\UserManager;
+use App\Livewire\RoleManager;
+use App\Livewire\UserManager;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
