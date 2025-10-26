@@ -2,10 +2,10 @@
 <button
     @click="darkMode = !darkMode"
     type="button"
-    class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out"
+    {{-- CAMBIO: Colores hover y focus ajustados al tema azul --}}
+    class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 focus:outline-none focus:bg-blue-50 dark:focus:bg-gray-800 focus:text-blue-600 dark:focus:text-blue-400 transition duration-150 ease-in-out"
     aria-label="Toggle dark mode"
 >
-    <!-- Icono de Sol (modo claro) -->
     <svg
         x-show="darkMode"
         class="h-6 w-6"
@@ -21,7 +21,6 @@
         />
     </svg>
 
-    <!-- Icono de Luna (modo oscuro) -->
     <svg
         x-show="!darkMode"
         class="h-6 w-6"
@@ -35,5 +34,6 @@
             stroke-width="2"
             d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
         />
-    </svg>
+    </svg
+    >
 </button>
