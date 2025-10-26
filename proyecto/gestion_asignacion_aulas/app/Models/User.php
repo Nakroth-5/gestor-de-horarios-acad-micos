@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use function Laravel\Prompts\select;
 
 class User extends Authenticatable
 {
@@ -59,7 +60,7 @@ class User extends Authenticatable
     // Relationships
     public function roles(): BelongsToMany
     {
-        return $this->belongsToMany(Role::class, 'role_user');
+        return $this->belongsToMany(Role::class);
     }
 
     public function assignments(): HasMany
@@ -67,7 +68,7 @@ class User extends Authenticatable
         return $this->hasMany(Assignment::class);
     }
 
-    public function auditLogs() : HasMany
+    public function auditLogs(): HasMany
     {
         return $this->hasMany(AuditLog::class);
     }
@@ -80,8 +81,18 @@ class User extends Authenticatable
 
     public function hasPermission($permissionName): bool
     {
-        return $this->roles()->whereHas('permissions', function($query) use ($permissionName) {
+        return $this->roles()->whereHas('permissions', function ($query) use ($permissionName) {
             $query->where('name', $permissionName);
         })->exists();
+    }
+
+    protected static function boot(): void
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            do {
+                $code = rand(100000, 999999);
+            } while (self::where('code', $code)->exists());
+        });
     }
 }

@@ -21,7 +21,6 @@ return new class extends Migration
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
             $table->primary(['permission_id', 'role_id']);
-            $table->string('module');
             $table->timestamps();
         });
     }

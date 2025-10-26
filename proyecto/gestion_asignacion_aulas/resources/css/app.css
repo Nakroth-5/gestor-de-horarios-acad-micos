@@ -1,6 +1,4 @@
-@import "tailwindcss";
-
-@theme {
-  /* Aquí puedes personalizar tu tema si lo necesitas */
-  --font-sans: ui-sans-serif, system-ui, sans-serif;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import "flowbite";
