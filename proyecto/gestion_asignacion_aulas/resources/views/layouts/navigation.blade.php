@@ -1,20 +1,3 @@
-<?php
-
-use App\Livewire\Actions\Logout;
-use Livewire\Volt\Component;
-
-new class extends Component
-{
-    /**
-     * Log the current user out of the application.
-     */
-    public function logout(Logout $logout): void
-    {
-        $logout();
-
-        $this->redirect('/', navigate: true);
-    }
-}; ?>
 <nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between sm:justify-end items-center h-16">
@@ -32,12 +15,16 @@ new class extends Component
                 </svg>
             </button>
 
+            <!-- Settings Dropdown -->
             <div class="py-4 sm:items-center sm:ms-6">
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
+                        <!-- Clases de estilo (hover azul) del primer nav -->
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition ease-in-out duration-150">
+                            <!-- Lógica de nombre de usuario del segundo nav -->
+                            <div>{{ Auth::user()->name }}</div>
 
-                            <div>{{ Auth::user()->name }}</div>                            <div class="ms-1">
+                            <div class="ms-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                                 </svg>
@@ -46,11 +33,13 @@ new class extends Component
                     </x-slot>
 
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('profile')" wire:navigate
+                        <!-- Estilo hover azul del primer nav -->
+                        <x-dropdown-link :href="route('profile.edit')"
                                          class="hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400">
                             {{ __('Profile') }}
                         </x-dropdown-link>
 
+                        <!-- Lógica de Logout del segundo nav (formulario) -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
 
@@ -68,3 +57,4 @@ new class extends Component
         </div>
     </div>
 </nav>
+
