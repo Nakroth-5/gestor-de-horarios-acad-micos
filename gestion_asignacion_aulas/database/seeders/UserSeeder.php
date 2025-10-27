@@ -25,7 +25,23 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('zata'),
                 'created_at' => now(),
                 'updated_at' => now(),
+            ],
+            [
+                'name' => 'Chayomi',
+                'code' => 112,
+                'last_name' => 'klk',
+                'phone' => '77754321',
+                'address' => 'Egipto',
+                'email' => 'duglasrivero2@gmail.com',
+                'document_type' => 'CI',
+                'document_number' => '7654321',
+                'is_active' => true,
+                'password' => Hash::make('chayomi'),
+                'created_at' => now(),
+                'updated_at' => now(),
             ]
         ]);
+
+
     }
 }
