@@ -194,13 +194,11 @@
                     </li>
                     <li>
                         {{-- CAMBIO: Unificado a color azul --}}
-                        <a href="#" class="flex items-center p-2 text-sm text-gray-600 rounded-lg dark:text-gray-400 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition">
+                        <a href="{{ route('schedule-block.index') }}" class="flex items-center p-2 text-sm text-gray-600 rounded-lg dark:text-gray-400 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition">
                             <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
                             </svg>
-                            Horarios
-                            {{-- CAMBIO: Badge unificado a color azul --}}
-                            <span class="inline-flex items-center justify-center px-2 ms-auto text-xs font-medium text-blue-800 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-300">Nuevo</span>
+                            Horarios                        
                         </a>
                     </li>
                     <li>

@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Livewire\RoleManager;
 use App\Livewire\UserManager;
 use App\Livewire\SubjectManager;
+use App\Livewire\ScheduleBlockManager;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -21,6 +22,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/user', UserManager::class)->name('user.index');
     Route::get('/role', RoleManager::class)->name('role.index');
     Route::get('/subject', SubjectManager::class)->name('subject.index');
+    Route::get('/schedule-block', ScheduleBlockManager::class)->name('schedule-block.index');
 });
 
 require __DIR__.'/auth.php';
