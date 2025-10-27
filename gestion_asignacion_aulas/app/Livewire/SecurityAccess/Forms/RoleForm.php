@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Forms;
+namespace App\Livewire\SecurityAccess\Forms;
 
 use App\Models\Role;
 use Livewire\Form;

@@ -1,8 +1,11 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Livewire\RoleManager;
-use App\Livewire\UserManager;
+use App\Livewire\AcademicLogistics\ClassroomManager;
+use App\Livewire\AcademicLogistics\InfrastructureManager;
+use App\Livewire\SecurityAccess\AuditLogManager;
+use App\Livewire\SecurityAccess\RoleManager;
+use App\Livewire\SecurityAccess\UserManager;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -19,6 +22,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/user', UserManager::class)->name('user.index');
     Route::get('/role', RoleManager::class)->name('role.index');
+    Route::get('/academic-logistics/infrastructure', InfrastructureManager::class)->name('infrastructure.index');
+    Route::get('/academic-logistics/classroom', ClassroomManager::class)->name('classroom.index');
+    Route::get('/security-access/auditLog', AuditLogManager::class)->name('auditLog.index');
 });
 
 require __DIR__.'/auth.php';

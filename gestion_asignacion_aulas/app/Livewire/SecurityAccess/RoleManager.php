@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\SecurityAccess;
 
-use App\Livewire\Forms\UserForm;
+use App\Livewire\SecurityAccess\Forms\RoleForm;
+use App\Models\Permission;
 use App\Models\Role;
-use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
@@ -13,7 +13,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 #[Layout('layouts.app')]
-class UserManager extends Component
+class RoleManager extends Component
 {
     use WithPagination;
 
@@ -22,7 +22,7 @@ class UserManager extends Component
     public $editing = null;
     protected $pagination_theme = 'tailwind';
 
-    public UserForm $form;
+    public RoleForm $form;
 
     protected $listeners = ['refreshComponent' => 'render'];
 
@@ -33,22 +33,19 @@ class UserManager extends Component
 
     public function render(): View
     {
-        $query = User::query();
-
+        $query = Role::query();
         if (!empty($this->search)) {
             $searchTerm = '%' . $this->search . '%';
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('name', 'ILIKE', $searchTerm)
-                    ->orWhere('last_name', 'ILIKE', $searchTerm)
-                    ->orWhere('email', 'ILIKE', $searchTerm)
-                    ->orWhere('phone', 'ILIKE', $searchTerm)
-                    ->orWhere('document_number', 'ILIKE', $searchTerm)
-                    ->orWhereRaw("CONCAT(name, ' ', last_name) ILIKE ?", [$searchTerm]);
+                    ->orWhere('description', 'ILIKE', $searchTerm)
+                    ->orWhere('level', 'ILIKE', $searchTerm);
             });
         }
-        $users = $query->orderBy('name')->paginate(10);
-        $allRoles = Role::all();
-        return view('livewire.user.user-manager', compact('users', 'allRoles'));
+
+        $roles = $query->orderBy('name')->paginate(10);
+        $allPermissions = Permission::all();
+        return view('livewire.security-access.role.role-manager', compact('roles', 'allPermissions'));
     }
 
     public function clearSearch(): void
@@ -61,61 +58,58 @@ class UserManager extends Component
     {
         $this->resetErrorBag();
 
-        $user = User::find($id);
+        $role = Role::find($id);
 
-        if (!$user) {
-            session()->flash('error', 'User not found.');
+        if (!$role) {
+            session()->flash('error', 'Role not found.');
             return;
         }
 
-        $this->editing = $user->id;
-
-        $this->form->set($user);
+        $this->editing = $role->id;
+        $this->form->set($role);
         $this->show = true;
     }
 
     public function save(): void
     {
-        //dd($this->form->all());
         $this->form->editing_id = $this->editing;
         $this->form->validate();
 
         try {
-            $userData = $this->form->getData();
-            $passwordData = $this->form->getPasswordData();
+            $roleData = $this->form->getData();
 
             if ($this->editing) {
-                $user = User::find($this->form->editing_id);
-                if (!$user) {
-                    session()->flash('error', 'User not found.');
+                $role = Role::find($this->editing);
+                if (!$role) {
+                    session()->flash('error', 'Role not found.');
                     return;
                 }
 
-                if ($passwordData)
-                    $userData['password'] = $passwordData;
+                $role->update($roleData);
 
-                $user->update($userData);
-                $user->roles()->sync($this->form->roles);
-                session()->flash('success', 'User updated successfully.');
+                $role->permissions()->sync($this->form->permissions);;
+                session()->flash('success', 'Role updated successfully.');
+
             } else {
-                $userData['password'] = $passwordData;
-                $user = User::create($userData);
-                $user->roles()->sync($this->form->roles);
-                session()->flash('success', 'User created successfully.');
+                $role = Role::create($roleData);
+                $role->permissions()->sync($this->form->permissions);
+                session()->flash('success', 'Role created successfully.');
             }
+
             $this->closeModal();
+
         } catch (Exception $e) {
-            Log::error('Error al guardar usuario: ' . $e->getMessage());
-            session()->flash('error', 'Error al guardar el usuario: ' . $e->getMessage());
+            Log::error('Error al guardar rol: ' . $e->getMessage());
+            session()->flash('error', 'Error al guardar el rol: ' . $e->getMessage());
         }
     }
 
     public function delete($id): void
     {
         try {
-            $user = User::find($id);
-            if ($user) {
-                $user->delete();
+            $role = Role::find($id);
+            if ($role) {
+                $role->update(['is_active' => false]);
                 session()->flash('message', 'Usuario eliminado correctamente');
             } else
                 session()->flash('error', 'Usuario no encontrado');
@@ -123,6 +117,7 @@ class UserManager extends Component
             session()->flash('error', 'Error al eliminar el usuario');
         }
     }
+
 
     public function openCreateModal(): void
     {

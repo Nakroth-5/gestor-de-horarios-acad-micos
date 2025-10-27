@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Forms;
+namespace App\Livewire\SecurityAccess\Forms;
 
 use AllowDynamicProperties;
 use App\Models\User;
