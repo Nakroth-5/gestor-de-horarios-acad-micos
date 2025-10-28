@@ -1,0 +1,12 @@
+<div>
+    <x-table.data-table
+        :items="$classrooms"
+        header="livewire.academic-logistics.classroom.components.header-classroom"
+        table-header="livewire.academic-logistics.classroom.components.table-header"
+        table-rows="livewire.academic-logistics.classroom.components.table-rows"
+        modal="livewire.academic-logistics.classroom.modal-edit-store"
+        :editing="$editing"
+        :search="$search"
+        :relations="$allModules"
+        :show="$show"/>
+</div>

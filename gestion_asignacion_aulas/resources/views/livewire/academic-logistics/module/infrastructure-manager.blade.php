@@ -1,0 +1,11 @@
+<div>
+    <x-table.data-table
+        :items="$infrastructure"
+        header="livewire.academic-logistics.module.components.header-infrastructure"
+        table-header="livewire.academic-logistics.module.components.table-header"
+        table-rows="livewire.academic-logistics.module.components.table-rows"
+        modal="livewire.academic-logistics.module.modal-edit-store"
+        :editing="$editing"
+        :search="$search"
+        :show="$show"/>
+</div>

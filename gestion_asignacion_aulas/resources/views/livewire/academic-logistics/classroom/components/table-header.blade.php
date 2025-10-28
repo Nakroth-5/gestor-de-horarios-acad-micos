@@ -1,0 +1,43 @@
+<div>
+    <x-table-header>
+        <div class="flex items-center space-x-2">
+            <x-icons.key class="w-4 h-4" /> <span>{{ __('Id') }}</span>
+        </div>
+    </x-table-header>
+
+    <x-table-header>
+        <div class="flex items-center space-x-2">
+            <x-icons.classroom class="w-4 h-4 bg-purple-950" /> <span>{{ __('Module') }}</span>
+        </div>
+    </x-table-header>
+
+    <x-table-header>
+        <div class="flex items-center space-x-2">
+            <x-icons.number class="w-4 h-4" /> <span>{{ __('Number') }}</span>
+        </div>
+    </x-table-header>
+
+    <x-table-header>
+        <div class="flex items-center space-x-2">
+            <span>{{ __('Type') }}</span>
+        </div>
+    </x-table-header>
+
+    <x-table-header>
+        <div class="flex items-center space-x-2">
+            <x-icons.users class="w-4 h-4" /> <span>{{ __('Capacity') }}</span>
+        </div>
+    </x-table-header>
+
+    <x-table-header>
+        <div class="flex items-center space-x-2">
+            <x-icons.status class="w-4 h-4" /> <span>{{ __('Status') }}</span>
+        </div>
+    </x-table-header>
+
+    <x-table-header>
+        <div class="flex items-center space-x-2">
+            <x-icons.settings class="w-4 h-4" /> <span>{{ __('Action') }}</span>
+        </div>
+    </x-table-header>
+</div>

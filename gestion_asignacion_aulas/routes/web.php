@@ -1,10 +1,13 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Livewire\RoleManager;
-use App\Livewire\UserManager;
-use App\Livewire\SubjectManager;
-use App\Livewire\ScheduleBlockManager;
+use App\Livewire\AcademicProcesses\SubjectManager;
+use App\Livewire\AcademicLogistics\ScheduleBlockManager;
+use App\Livewire\AcademicLogistics\ClassroomManager;
+use App\Livewire\AcademicLogistics\InfrastructureManager;
+use App\Livewire\SecurityAccess\AuditLogManager;
+use App\Livewire\SecurityAccess\RoleManager;
+use App\Livewire\SecurityAccess\UserManager;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -23,6 +26,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/role', RoleManager::class)->name('role.index');
     Route::get('/subject', SubjectManager::class)->name('subject.index');
     Route::get('/schedule-block', ScheduleBlockManager::class)->name('schedule-block.index');
+    Route::get('/academic-logistics/infrastructure', InfrastructureManager::class)->name('infrastructure.index');
+    Route::get('/academic-logistics/classroom', ClassroomManager::class)->name('classroom.index');
+    Route::get('/security-access/auditLog', AuditLogManager::class)->name('auditLog.index');
 });
 
 require __DIR__.'/auth.php';

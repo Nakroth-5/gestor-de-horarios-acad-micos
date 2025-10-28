@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('modules', function (Blueprint $table) {
             $table->id();
-            $table->integer('code');
+            $table->integer('code')->unique();
             $table->text('address');
             $table->boolean('is_active')->default(true);
             $table->timestamps();
