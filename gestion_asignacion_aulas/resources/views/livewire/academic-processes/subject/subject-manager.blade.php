@@ -1,0 +1,11 @@
+<div>
+    <x-table.data-table
+        :items="$subjects"
+        header="livewire.academic-processes.subject.components.header-subject"
+        table-header="livewire.academic-processes.subject.components.table-header"
+        table-rows="livewire.academic-processes.subject.components.table-rows"
+        modal="livewire.academic-processes.subject.modal-edit-store"
+        :editing="$editing"
+        :search="$search"
+        :show="$show"/>
+</div>
