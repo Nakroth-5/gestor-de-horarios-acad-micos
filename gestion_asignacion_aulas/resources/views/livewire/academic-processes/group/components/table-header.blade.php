@@ -7,25 +7,17 @@
 
     <x-table-header>
         <div class="flex items-center space-x-2">
-            <x-icons.number class="w-4 h-4 text-green-400" /> <span>{{ __('Sigla') }}</span>
+           <span>{{ __('Name') }}</span>
         </div>
+    </x-table-header>
+
+    <x-table-header>
+        <x-input-label>{{ __('Status') }}</x-input-label>
     </x-table-header>
 
     <x-table-header>
         <div class="flex items-center space-x-2">
             <x-icons.subject class="w-4 h-4 text-blue-500" /> <span>{{ __('Subject') }}</span>
-        </div>
-    </x-table-header>
-
-    <x-table-header>
-        <div class="flex items-center space-x-2">
-            <x-icons.credit_card class="w-4 h-4 text-green-800" /> <span>{{ __('Credits') }}</span>
-        </div>
-    </x-table-header>
-
-    <x-table-header>
-        <div class="flex items-center space-x-2">
-            <x-icons.status class="w-4 h-4 text-green-500" /> <span>{{ __('Status') }}</span>
         </div>
     </x-table-header>
 

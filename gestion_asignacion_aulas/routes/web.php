@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Livewire\AcademicProcesses\GroupManager;
 use App\Livewire\AcademicProcesses\SubjectManager;
 use App\Livewire\AcademicLogistics\ScheduleBlockManager;
 use App\Livewire\AcademicLogistics\ClassroomManager;
@@ -29,6 +30,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/academic-logistics/infrastructure', InfrastructureManager::class)->name('infrastructure.index');
     Route::get('/academic-logistics/classroom', ClassroomManager::class)->name('classroom.index');
     Route::get('/security-access/auditLog', AuditLogManager::class)->name('auditLog.index');
+    Route::get('/academic-process/group', GroupManager::class)->name('group.index');
 });
 
 require __DIR__.'/auth.php';

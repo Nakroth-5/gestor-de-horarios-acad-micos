@@ -46,7 +46,7 @@ class UserManager extends Component
                     ->orWhereRaw("CONCAT(name, ' ', last_name) ILIKE ?", [$searchTerm]);
             });
         }
-        $users = $query->orderBy('name')->paginate(10);
+        $users = $query->orderBy('name')->paginate(20);
         $allRoles = Role::all();
         return view('livewire.security-access.user.user-manager', compact('users', 'allRoles'));
     }

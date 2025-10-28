@@ -2,7 +2,8 @@
 
 namespace App\Livewire\AcademicProcesses;
 
-use App\Livewire\AcademicProcesses\Forms\SubjectForm;
+use App\Livewire\AcademicProcesses\Forms\GroupForm;
+use App\Models\Group;
 use App\Models\Subject;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -12,84 +13,71 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 #[Layout('layouts.app')]
-class SubjectManager extends Component
+class GroupManager extends Component
 {
+
     use WithPagination;
 
+    public GroupForm $form;
+    public $editing = null;
     public $search = '';
     public $show = false;
-    public $editing = null;
+
     protected $pagination_theme = 'tailwind';
-
-    public SubjectForm $form;
-
     protected $listeners = ['refreshComponent' => 'render'];
-
-    public function updatingSearch(): void
-    {
-        $this->resetPage();
-    }
 
     public function render(): View
     {
-        $query = Subject::query();
+        $query = Group::query();
         if (!empty($this->search)) {
             $searchTerm = '%' . $this->search . '%';
             $query->where(function ($q) use ($searchTerm) {
-                $q->where('name', 'ILIKE', $searchTerm)
-                    ->orWhere('code', 'ILIKE', $searchTerm)
-                    ->orWhere('credits', 'ILIKE', $searchTerm);
+                $q->where('name', 'ILIKE', $searchTerm);
             });
         }
 
-        $subjects = $query->orderBy('name')->paginate(10);
-        return view('livewire.academic-processes.subject.subject-manager', compact('subjects'));
+        $groups = $query->orderBy('name')->paginate(20);
+        $allSubject = Subject::all();
+        return view('livewire.academic-processes.group.group-manager',
+            compact('groups', 'allSubject'));
     }
 
-    public function clearSearch(): void
+    public function edit($id): void
     {
-        $this->search = '';
-        $this->resetPage();
-    }
-
-    public function edit(int $id): void
-    {
-        $this->resetErrorBag();
-
-        $subject = Subject::find($id);
-
-        if (!$subject) {
-            session()->flash('error', 'Subject not found.');
+        $this->getErrorBag();
+        $group = Group::find($id);
+        if (!$group) {
+            session()->flash('error', 'Group not found');
             return;
         }
 
-        $this->editing = $subject->id;
-        $this->form->set($subject);
+        $this->editing = $group->id;
+        $this->form->set($group);
         $this->show = true;
     }
 
     public function save(): void
     {
-        $this->form->code = strtoupper(trim((string) $this->form->code));
+        //dd($this->form->all());
         $this->form->editing_id = $this->editing;
-        $this->form->validate();
+        $this->validate();
 
         try {
-            $subjectData = $this->form->getData();
+            $groupData = $this->form->getData();
 
             if ($this->editing) {
-                $subject = Subject::find($this->editing);
-                if (!$subject) {
+                $group = Group::find($this->editing);
+                if (!$group) {
                     session()->flash('error', 'Subject not found.');
                     return;
                 }
-
-                $subject->update($subjectData);
-
+                $group->update($groupData);
+                $group->subjects()->sync($this->form->subjects);
                 session()->flash('success', 'Subject updated successfully.');
 
             } else {
-                Subject::create($subjectData);
+                $group = Group::create($groupData);
+                $group->subjects()->sync($this->form->subjects);
                 session()->flash('success', 'Subject created successfully.');
             }
 
@@ -99,22 +87,33 @@ class SubjectManager extends Component
             Log::error('Error al guardar la materia: ' . $e->getMessage());
             session()->flash('error', 'Error al guardar la materia: ' . $e->getMessage());
         }
+
     }
 
     public function delete($id): void
     {
         try {
-            $subject = Subject::find($id);
-            if ($subject) {
-                $subject->update(['is_active' => false]);
-                session()->flash('message', 'Materia eliminada correctamente');
+            $group = Group::find($id);
+            if ($group) {
+                $group->update(['is_active' => false]);
+                session()->flash('message', 'Usuario eliminado correctamente');
             } else
-                session()->flash('error', 'Materia no encontrada');
+                session()->flash('error', 'Usuario no encontrado');
         } catch (Exception) {
-            session()->flash('error', 'Error al eliminar la materia');
+            session()->flash('error', 'Error al eliminar el usuario');
         }
     }
 
+    public function clearSearch(): void
+    {
+        $this->search = '';
+        $this->resetPage();
+    }
+
+    public function updatingSearch(): void
+    {
+        $this->resetPage();
+    }
 
     public function openCreateModal(): void
     {

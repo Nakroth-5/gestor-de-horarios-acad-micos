@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Day;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -17,11 +16,13 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            UserSeeder::class,
-            RoleSeeder::class,
-            PermissionSeeder::class,
-            SubjectSeeder::class,
-            DaySeeder::class,
+//            UserSeeder::class,
+//            RoleSeeder::class,
+//            PermissionSeeder::class,
+//            DaySeeder::class,
+//            SubjectSeeder::class,
+//            GroupSeeder::class
+            ScheduleSeeder::class,
         ]);
     }
 }

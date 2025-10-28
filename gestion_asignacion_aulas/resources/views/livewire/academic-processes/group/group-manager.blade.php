@@ -1,0 +1,12 @@
+<div>
+    <x-table.data-table
+        :items="$groups"
+        header="livewire.academic-processes.group.components.header-group"
+        table-header="livewire.academic-processes.group.components.table-header"
+        table-rows="livewire.academic-processes.group.components.table-rows"
+        modal="livewire.academic-processes.group.modal-edit-store"
+        :editing="$editing"
+        :search="$search"
+        :relations="$allSubject"
+        :show="$show"/>
+</div>
