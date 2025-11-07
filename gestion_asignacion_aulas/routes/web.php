@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Livewire\AcademicLogistics\ManualScheduleAssignment;
 use App\Livewire\AcademicProcesses\GroupManager;
 use App\Livewire\AcademicProcesses\SubjectManager;
 use App\Livewire\AcademicLogistics\ScheduleBlockManager;
@@ -26,9 +27,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/user', UserManager::class)->name('user.index');
     Route::get('/role', RoleManager::class)->name('role.index');
     Route::get('/subject', SubjectManager::class)->name('subject.index');
-    Route::get('/schedule-block', ScheduleBlockManager::class)->name('schedule-block.index');
+
     Route::get('/academic-logistics/infrastructure', InfrastructureManager::class)->name('infrastructure.index');
     Route::get('/academic-logistics/classroom', ClassroomManager::class)->name('classroom.index');
+    Route::get('/academic-logistics/schedule-block', ScheduleBlockManager::class)->name('schedule-block.index');
+    Route::get('/academic-logistics/manual-schedule-assignment', ManualScheduleAssignment::class)->name('manual-schedule-assignment.index');
+
     Route::get('/security-access/auditLog', AuditLogManager::class)->name('auditLog.index');
     Route::get('/academic-process/group', GroupManager::class)->name('group.index');
 });

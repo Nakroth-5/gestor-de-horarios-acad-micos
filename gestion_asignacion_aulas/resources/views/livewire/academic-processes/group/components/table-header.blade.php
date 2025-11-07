@@ -17,12 +17,6 @@
 
     <x-table-header>
         <div class="flex items-center space-x-2">
-            <x-icons.subject class="w-4 h-4 text-blue-500" /> <span>{{ __('Subject') }}</span>
-        </div>
-    </x-table-header>
-
-    <x-table-header>
-        <div class="flex items-center space-x-2">
             <x-icons.settings class="w-4 h-4 text-red-800" /> <span>{{ __('Action') }}</span>
         </div>
     </x-table-header>

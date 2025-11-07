@@ -22,7 +22,7 @@ class Subject extends Model
     // Relationships
     public function groups(): BelongsToMany
     {
-        return $this->belongsToMany(Group::class, 'group_subject');
+        return $this->belongsToMany(Group::class, 'group_subjects');
     }
 
     public function assignments(): HasMany

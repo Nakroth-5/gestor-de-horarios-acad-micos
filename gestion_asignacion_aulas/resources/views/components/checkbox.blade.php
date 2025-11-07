@@ -1,7 +1,17 @@
 <input
     type="checkbox"
     {!! $attributes->merge([
-        /* CAMBIO: Borde oscuro a blue-700 y color de acento/ring a blue */
-        'class' => 'rounded dark:bg-gray-900 border-gray-300 dark:border-blue-700 text-blue-600 shadow-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800'
+            'class' => ' bg-white dark:bg-gray-800
+                    border border-gray-300 dark:border-gray-700
+                    text-gray-900 dark:text-white
+                    focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-0 dark:focus:ring-offset-gray-800
+                    rounded-md shadow-sm
+                    cursor-pointer
+                    transition-colors duration-150
+                    hover:bg-gray-50 dark:hover:bg-gray-700
+                    disabled:opacity-50 disabled:cursor-not-allowed
+                    [&>option]:bg-white dark:[&>option]:bg-gray-800
+                    [&>option]:text-gray-900 dark:[&>option]:text-white
+                    [&>option]:py-2'
     ]) !!}
 >

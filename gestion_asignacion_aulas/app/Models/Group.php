@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Group extends Model
 {
     protected $fillable = [
-        'academic_management_id',
         'name',
         'is_active',
     ];
@@ -26,6 +25,6 @@ class Group extends Model
 
     public function subjects(): BelongsToMany
     {
-        return $this->belongsToMany(Subject::class, 'group_subject');
+        return $this->belongsToMany(Subject::class, 'group_subjects');
     }
 }

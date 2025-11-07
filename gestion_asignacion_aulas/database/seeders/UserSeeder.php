@@ -13,7 +13,7 @@ class UserSeeder extends Seeder
     {
         $docentes = [
             "ADMIN ADMIN",
-            "FLORES FLORES MARCOS OSCAR", "CABELLO MERIDA JUAN RUBEN", "CORTEZ UZEDA JULIO MARTIN",
+            "CABELLO MERIDA JUAN RUBEN", "CORTEZ UZEDA JULIO MARTIN",
             "GUTIERREZ BRUNO KATIME ESTHER", "GIANELLA PEREDO EDUARDO", "MONRROY DIPP VICTOR FERNANDO",
             "CARVAJAL CORDERO MARCIO", "HINOJOSA SAAVEDRA JOSE SAID", "VEIZAGA GONZALES JOSUE OBED",
             "VARGAS PEÑA LEONARDO", "PEREZ FERREIRA UBALDO", "AVENDAÑO GONZALES EUDAL",
@@ -56,7 +56,7 @@ class UserSeeder extends Seeder
                 ['email' => $email],
                 [
                     'name' => $names['name'],
-                    'code' => (string)rand(100000, 999999),
+                    'code' => (string)rand(1000, 9999),
                     'last_name' => $names['last_name'],
                     'email' => $email,
                     'password' => Hash::make('password'),

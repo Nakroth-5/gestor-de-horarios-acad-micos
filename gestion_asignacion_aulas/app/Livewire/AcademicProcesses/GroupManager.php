@@ -72,12 +72,10 @@ class GroupManager extends Component
                     return;
                 }
                 $group->update($groupData);
-                $group->subjects()->sync($this->form->subjects);
                 session()->flash('success', 'Subject updated successfully.');
 
             } else {
                 $group = Group::create($groupData);
-                $group->subjects()->sync($this->form->subjects);
                 session()->flash('success', 'Subject created successfully.');
             }
 
@@ -95,7 +93,9 @@ class GroupManager extends Component
         try {
             $group = Group::find($id);
             if ($group) {
-                $group->update(['is_active' => false]);
+                $group->delete();
+                //$group->update(['is_active' => false]);
+                $this->dispatch('delete-group', group: $group->name);
                 session()->flash('message', 'Usuario eliminado correctamente');
             } else
                 session()->flash('error', 'Usuario no encontrado');
