@@ -24,7 +24,7 @@ class Assignment extends Model
     /**
      * Boot method para llenar automáticamente subject_id
      */
-    protected static function boot()
+    protected static function boot(): void
     {
         parent::boot();
 
@@ -183,26 +183,6 @@ class Assignment extends Model
             'daySchedule.schedule'
         ])
             ->where('group_id', $groupId)
-            ->when($academicManagementId, fn($q) => $q->where('academic_management_id', $academicManagementId))
-            ->get()
-            ->groupBy(function ($assignment) {
-                return $assignment->daySchedule->day->name ?? 'Sin día';
-            });
-    }
-
-    /**
-     * Obtener horario de un docente
-     */
-    public static function getTeacherSchedule($userId, $academicManagementId = null)
-    {
-        return self::with([
-            'subject',
-            'group',
-            'classroom',
-            'daySchedule.day',
-            'daySchedule.schedule'
-        ])
-            ->whereHas('userSubject', fn($q) => $q->where('user_id', $userId))
             ->when($academicManagementId, fn($q) => $q->where('academic_management_id', $academicManagementId))
             ->get()
             ->groupBy(function ($assignment) {
