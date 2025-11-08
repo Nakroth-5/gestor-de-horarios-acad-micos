@@ -23,6 +23,9 @@ class DatabaseSeeder extends Seeder
             SubjectSeeder::class,
             GroupSeeder::class,
             ScheduleSeeder::class,
+            ClassroomSeeder::class,
+            AcademicManagementSeeder::class,
+            UniversityCareerSeeder::class,
         ]);
     }
 }
