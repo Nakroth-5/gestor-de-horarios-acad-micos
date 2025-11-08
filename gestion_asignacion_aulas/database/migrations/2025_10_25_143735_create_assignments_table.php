@@ -41,9 +41,9 @@ return new class extends Migration {
 
             // Relación con periodo académico
             $table->foreignId('academic_management_id')
-                ->nullable()
                 ->constrained('academic_management')
-                ->onDelete('set null');
+                ->onDelete('cascade');
+
 
             // ÍNDICES ÚNICOS COMPUESTOS
 
