@@ -20,7 +20,7 @@ class ManualAssignmentForm extends Form
             'group_id' => 'required|exists:groups,id',
             'classroom_id' => 'required|exists:classrooms,id',
             'day_schedule_id' => 'required|exists:day_schedules,id',
-            'academic_id' => 'nullable|exists:academic_management,id',
+            'academic_id' => 'required|exists:academic_management,id',
         ];
     }
 
