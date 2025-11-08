@@ -37,20 +37,38 @@ class ScheduleBlockManager extends Component
 
     public function render(): View
     {
-        $query = DaySchedule::query()->with(['day','schedule']);
+        $query = DaySchedule::query()->with(['day', 'schedule']);
         if (!empty($this->search)) {
             $searchTerm = '%' . mb_strtolower($this->search) . '%';
-            $query->where(function($q) use ($searchTerm) {
-                $q->whereHas('day', function($q2) use ($searchTerm) {
+            $query->where(function ($q) use ($searchTerm) {
+                $q->whereHas('day', function ($q2) use ($searchTerm) {
                     $q2->whereRaw('LOWER(name) LIKE ?', [$searchTerm]);
                 })->orWhereHas('schedule', function ($q3) use ($searchTerm) {
                     $q3->where('start', 'LIKE', $searchTerm)
-                       ->orWhere('end', 'LIKE', $searchTerm);
+                        ->orWhere('end', 'LIKE', $searchTerm);
                 });
             });
         }
 
-        $daySchedules = $query->orderBy('day_id')->paginate(10);
+        $dayOrder = "CASE
+            WHEN days.name = 'Monday' THEN 1
+            WHEN days.name = 'Tuesday' THEN 2
+            WHEN days.name = 'Wednesday' THEN 3
+            WHEN days.name = 'Thursday' THEN 4
+            WHEN days.name = 'Friday' THEN 5
+            WHEN days.name = 'Saturday' THEN 6
+            WHEN days.name = 'Sunday' THEN 7
+            ELSE 8
+          END";
+
+        $daySchedules = $query->join('days', 'day_schedules.day_id', '=', 'days.id')
+            ->join('schedules', 'day_schedules.schedule_id', '=', 'schedules.id')
+            ->select('day_schedules.*')
+            ->orderByRaw($dayOrder)
+            ->orderBy('schedules.start')
+            ->paginate(10);
+
+
         $this->allDays = Day::all();
         $this->allSchedules = Schedule::all();
         return view('livewire.academic-logistics.schedule_block.schedule-block-manager', compact('daySchedules'));
