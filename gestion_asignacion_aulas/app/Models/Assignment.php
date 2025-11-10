@@ -189,4 +189,26 @@ class Assignment extends Model
                 return $assignment->daySchedule->day->name ?? 'Sin día';
             });
     }
+
+    /**
+     * Relación con registros de asistencia
+     */
+    public function attendanceRecords()
+    {
+        return $this->hasMany(\App\Models\AttendanceRecord::class);
+    }
+
+    /**
+     * Obtener el registro de asistencia de la semana actual para un usuario
+     */
+    public function getCurrentWeekAttendance($userId)
+    {
+        return $this->attendanceRecords()
+            ->where('user_id', $userId)
+            ->whereBetween('created_at', [
+                now()->startOfWeek(),
+                now()->endOfWeek()
+            ])
+            ->first();
+    }
 }

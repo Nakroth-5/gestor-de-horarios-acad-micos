@@ -11,6 +11,7 @@
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display-swap" rel="stylesheet"/>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 </head>
 <body class="font-sans antialiased">
 <div class="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-sky-100 dark:from-gray-900 dark:to-blue-950 sm:ml-64">
@@ -22,5 +23,6 @@
         {{ $slot }}
     </main>
 </div>
+@livewireScripts
 </body>
 </html>
