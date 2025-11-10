@@ -29,8 +29,34 @@ class AttendanceQrManager extends Component
     {
         $todayAssignments = $this->getTodayAssignments();
 
+        // Separar en pendientes y finalizadas
+        $pendingAssignments = collect();
+        $completedAssignments = collect();
+
+        foreach($todayAssignments as $assignment) {
+            $attendanceRecord = $assignment->attendanceRecords->first();
+            $isMarked = $attendanceRecord && $attendanceRecord->isMarked();
+
+            $dayName = trim($assignment->daySchedule->day->name);
+            $today = now();
+            $weekStart = $today->copy()->startOfWeek();
+            $dayNumberMap = ['Monday' => 1, 'Tuesday' => 2, 'Wednesday' => 3, 'Thursday' => 4, 'Friday' => 5, 'Saturday' => 6, 'Sunday' => 7];
+            $targetDayNumber = $dayNumberMap[$dayName] ?? 1;
+            $classDate = $weekStart->copy()->addDays($targetDayNumber - 1);
+            $classDateTime = Carbon::parse($classDate->format('Y-m-d') . ' ' . $assignment->daySchedule->schedule->end);
+            $expired = now()->greaterThan($classDateTime);
+
+            if ($isMarked || $expired) {
+                $completedAssignments->push($assignment);
+            } else {
+                $pendingAssignments->push($assignment);
+            }
+        }
+
         return view('livewire.academic-logistics.attendance.attendance-qr-manager', [
-            'assignments' => $todayAssignments
+            'assignments' => $todayAssignments,
+            'pendingAssignments' => $pendingAssignments,
+            'completedAssignments' => $completedAssignments
         ]);
     }
 
@@ -69,11 +95,11 @@ class AttendanceQrManager extends Component
             $query->where('user_id', $userId);
         })
         ->where('academic_management_id', $activeAcademicManagement->id)
-        ->orderBy('day_schedule_id')
         ->get()
         ->sortBy(function ($assignment) {
-            // Ordenar por día de la semana y luego por hora de inicio
-            $dayOrder = [
+            // Calcular la fecha real de la clase en la semana actual
+            $dayName = trim($assignment->daySchedule->day->name);
+            $dayNumberMap = [
                 'Monday' => 1,
                 'Tuesday' => 2,
                 'Wednesday' => 3,
@@ -82,11 +108,16 @@ class AttendanceQrManager extends Component
                 'Saturday' => 6,
                 'Sunday' => 7
             ];
-            $dayName = $assignment->daySchedule->day->name;
-            $dayNum = $dayOrder[$dayName] ?? 999;
+
+            $targetDayNumber = $dayNumberMap[$dayName] ?? 1;
+            $weekStart = now()->startOfWeek(); // Lunes de esta semana
+            $classDate = $weekStart->copy()->addDays($targetDayNumber - 1);
             $startTime = $assignment->daySchedule->schedule->start;
 
-            return ($dayNum * 10000) + (intval(str_replace(':', '', $startTime)));
+            // Combinar fecha y hora para ordenamiento cronológico
+            $dateTime = $classDate->format('Y-m-d') . ' ' . $startTime;
+
+            return $dateTime;
         });
 
         return $assignments;
