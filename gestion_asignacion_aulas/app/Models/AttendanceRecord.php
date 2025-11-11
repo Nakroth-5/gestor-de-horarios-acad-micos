@@ -37,9 +37,8 @@ class AttendanceRecord extends Model
         parent::boot();
 
         static::creating(function ($attendanceRecord) {
-            // Si scan_time es null, establecer la hora actual como placeholder
             if (is_null($attendanceRecord->scan_time)) {
-                $attendanceRecord->scan_time = now();
+                $attendanceRecord->scan_time = null;
             }
         });
     }

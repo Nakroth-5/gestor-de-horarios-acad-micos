@@ -20,15 +20,29 @@ class Classroom extends Model
         'is_active' => 'boolean',
     ];
 
+    protected $appends = ['name'];
+
     // Relationships
     public function module(): BelongsTo
     {
         return $this->belongsTo(Module::class);
     }
 
+    // Alias para infrastructure (module es la infraestructura/edificio)
+    public function infrastructure(): BelongsTo
+    {
+        return $this->module();
+    }
+
     public function assignments(): HasMany
     {
         return $this->hasMany(Assignment::class);
+    }
+
+    // Attributes
+    public function getNameAttribute(): string
+    {
+        return $this->module->code . '-' . $this->number;
     }
 
     // Helper methods

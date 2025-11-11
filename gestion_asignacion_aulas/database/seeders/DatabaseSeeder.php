@@ -22,11 +22,10 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
             DaySeeder::class,
             SubjectSeeder::class,
-            GroupSeeder::class,
-            ScheduleSeeder::class,
-            ClassroomSeeder::class,
             AcademicManagementSeeder::class,
             UniversityCareerSeeder::class,
+            GroupSeeder::class,
+            CompleteInfrastructureSeeder::class, // Crea módulos, aulas, horarios y day_schedules
             RoleUserSeeder::class,
         ]);
     }

@@ -12,18 +12,40 @@
     <x-table.td data="{{ $item->document_number }}"/>
 
     <td>
-        <div class="flex items-center ml-4 px-0">
-            <x-table.select>
-                @php
-                    $subjects = $item->subjects()->where('subjects.is_active', true)->get();
-                @endphp
+        <div class="px-4 py-2">
+            @php
+                $userSubjects = \App\Models\UserSubject::where('user_id', $item->id)
+                    ->with(['subject', 'universityCareer'])
+                    ->get();
+            @endphp
 
-                @if($subjects->count() > 0)
-                        @foreach($subjects as $subject)
-                            <option value="{{ $subject->code }}" title="{{ $subject->name }}">{{ $subject->code }}</option>
-                        @endforeach
-                @endif
-            </x-table.select>
+            @if($userSubjects->count() > 0)
+                <div class="space-y-1">
+                    @foreach($userSubjects as $us)
+                        @if($us->subject && $us->subject->is_active)
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded font-mono">
+                                    {{ $us->subject->code }}
+                                </span>
+                                <span class="text-gray-700 dark:text-gray-300">
+                                    {{ $us->subject->name }}
+                                </span>
+                                @if($us->universityCareer)
+                                    <span class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded">
+                                        {{ $us->universityCareer->code }}
+                                    </span>
+                                @else
+                                    <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded text-xs italic">
+                                        Sin carrera
+                                    </span>
+                                @endif
+                            </div>
+                        @endif
+                    @endforeach
+                </div>
+            @else
+                <span class="text-xs text-gray-500 dark:text-gray-400 italic">Sin materias asignadas</span>
+            @endif
         </div>
     </td>
 

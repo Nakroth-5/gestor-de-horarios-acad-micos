@@ -445,3 +445,4 @@ class ManualScheduleAssignment extends Component
         $this->resetPage();
     }
 }
+

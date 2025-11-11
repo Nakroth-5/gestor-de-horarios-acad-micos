@@ -63,7 +63,10 @@ class TeacherSubjectManager extends Component
             ->orderBy('name')
             ->get();
 
-        return view('livewire.academic-processes.teacher-subject.teacher-subject-manager', compact('teachers', 'allSubjects'));
+        // Cargar todas las carreras
+        $allCareers = \App\Models\UniversityCareer::orderBy('name')->get();
+
+        return view('livewire.academic-processes.teacher-subject.teacher-subject-manager', compact('teachers', 'allSubjects', 'allCareers'));
     }
 
     public function clearSearch(): void
@@ -102,6 +105,7 @@ class TeacherSubjectManager extends Component
             $data = $this->form->getData();
             $userId = $data['user_id'];
             $subjectIds = $data['subject_ids'];
+            $subjectCareers = $data['subject_careers'];
 
             // Verificar que el usuario existe y es docente
             $user = User::find($userId);
@@ -122,9 +126,49 @@ class TeacherSubjectManager extends Component
 
             DB::beginTransaction();
 
-            // Usar sync para sincronizar las materias del docente
-            // Esto automáticamente elimina las viejas y agrega las nuevas sin duplicados
-            $user->subjects()->sync($subjectIds);
+            // Obtener todas las combinaciones actuales
+            $existingAssignments = UserSubject::where('user_id', $userId)->get();
+            
+            // Crear array de las nuevas combinaciones (subject_id + career_id)
+            $newCombinations = [];
+            foreach ($subjectIds as $subjectId) {
+                $careerId = $subjectCareers[$subjectId] ?? null;
+                $newCombinations[] = [
+                    'subject_id' => $subjectId,
+                    'career_id' => $careerId,
+                ];
+            }
+
+            // Eliminar las asignaciones que ya no están en la nueva lista
+            foreach ($existingAssignments as $existing) {
+                $existsInNew = false;
+                foreach ($newCombinations as $new) {
+                    if ($existing->subject_id == $new['subject_id'] && 
+                        $existing->university_career_id == $new['career_id']) {
+                        $existsInNew = true;
+                        break;
+                    }
+                }
+                if (!$existsInNew) {
+                    $existing->delete();
+                }
+            }
+
+            // Crear las nuevas asignaciones que no existen
+            foreach ($newCombinations as $new) {
+                $exists = $existingAssignments->first(function($existing) use ($new) {
+                    return $existing->subject_id == $new['subject_id'] && 
+                           $existing->university_career_id == $new['career_id'];
+                });
+
+                if (!$exists) {
+                    UserSubject::create([
+                        'user_id' => $userId,
+                        'subject_id' => $new['subject_id'],
+                        'university_career_id' => $new['career_id'],
+                    ]);
+                }
+            }
 
             DB::commit();
 

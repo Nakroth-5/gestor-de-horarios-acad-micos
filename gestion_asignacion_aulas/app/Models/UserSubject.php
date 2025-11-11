@@ -14,6 +14,7 @@ class UserSubject extends Model
     protected $fillable = [
         'user_id',
         'subject_id',
+        'university_career_id',
     ];
 
     /**
@@ -30,6 +31,14 @@ class UserSubject extends Model
     public function subject(): BelongsTo
     {
         return $this->belongsTo(Subject::class);
+    }
+
+    /**
+     * Relación con UniversityCareer (carrera)
+     */
+    public function universityCareer(): BelongsTo
+    {
+        return $this->belongsTo(UniversityCareer::class);
     }
 
     /**

@@ -89,6 +89,14 @@ class User extends Authenticatable
         })->exists();
     }
 
+    // Scopes
+    public function scopeRole($query, $roleName)
+    {
+        return $query->whereHas('roles', function ($q) use ($roleName) {
+            $q->where('name', $roleName);
+        });
+    }
+
     protected static function boot(): void
     {
         parent::boot();

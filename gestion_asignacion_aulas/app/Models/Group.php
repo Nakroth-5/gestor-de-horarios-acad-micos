@@ -10,6 +10,7 @@ class Group extends Model
 {
     protected $fillable = [
         'name',
+        'university_career_id',
         'is_active',
     ];
 
@@ -21,6 +22,11 @@ class Group extends Model
     public function academicManagement(): BelongsTo
     {
         return $this->belongsTo(AcademicManagement::class);
+    }
+
+    public function universityCareer(): BelongsTo
+    {
+        return $this->belongsTo(UniversityCareer::class);
     }
 
     public function subjects(): BelongsToMany
