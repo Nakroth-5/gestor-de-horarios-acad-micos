@@ -47,7 +47,7 @@ class AttendanceScanController extends Controller
             ]);
         }
 
-        // Llamar directamente al controlador de API (más eficiente que HTTP)
+        // Llamar directamente al controlador de API 
         try {
             $attendanceController = new \App\Http\Controllers\Api\AttendanceController();
 

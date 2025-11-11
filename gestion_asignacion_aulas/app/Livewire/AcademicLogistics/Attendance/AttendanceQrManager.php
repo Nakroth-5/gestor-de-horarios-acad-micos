@@ -137,7 +137,7 @@ class AttendanceQrManager extends Component
 
             // Validar que la asignación pertenezca al docente autenticado
             if ($assignment->userSubject->user_id !== Auth::id()) {
-                session()->flash('error', '🚫 No tienes permisos para esta asignación.');
+                session()->flash('error', 'No tienes permisos para esta asignación.');
                 return;
             }
 
@@ -194,14 +194,14 @@ class AttendanceQrManager extends Component
         if ($currentTime->lt($fiveMinutesBefore)) {
             return [
                 'valid' => false,
-                'message' => '⛔ No hay clase activa en este momento. La clase comienza a las ' . $classStartTime->format('H:i')
+                'message' => 'No hay clase activa en este momento. La clase comienza a las ' . $classStartTime->format('H:i')
             ];
         }
 
         if ($currentTime->gt($classEndTime)) {
             return [
                 'valid' => false,
-                'message' => '⛔ La clase ya finalizó (terminó a las ' . $classEndTime->format('H:i') . ').'
+                'message' => 'La clase ya finalizó (terminó a las ' . $classEndTime->format('H:i') . ').'
             ];
         }
 
@@ -281,7 +281,7 @@ class AttendanceQrManager extends Component
         // Generar nuevo QR
         $this->generateQr($this->currentAssignment->id);
 
-        session()->flash('message', '🔄 QR regenerado correctamente.');
+        session()->flash('message', 'QR regenerado correctamente.');
     }
 
     /**

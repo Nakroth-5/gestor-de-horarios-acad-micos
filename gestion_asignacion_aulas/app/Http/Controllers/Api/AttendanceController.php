@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Validator;
 class AttendanceController extends Controller
 {
     /**
-     * Marca la asistencia de un estudiante escaneando un código QR
+     * Marca la asistencia de un docente escaneando un código QR
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
