@@ -14,6 +14,11 @@ return new class extends Migration
         Schema::create('university_careers', function (Blueprint $table) {
             $table->id();
             $table->string('name', 100);
+            $table->string('code', 20)->unique();
+            $table->string('study_level', 50); // Licenciatura, Maestría, Doctorado, etc.
+            $table->integer('duration_years'); // Duración en años
+            $table->string('faculty', 100); // Facultad
+            $table->string('language', 50)->default('Español'); // Idioma
             $table->timestamps();
         });
     }

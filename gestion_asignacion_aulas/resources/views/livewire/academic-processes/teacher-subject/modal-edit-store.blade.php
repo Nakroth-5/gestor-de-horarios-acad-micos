@@ -61,6 +61,23 @@
                                     Créditos: {{ $subject->credits }}
                                 </span>
                             </div>
+                            
+                            @if(in_array($subject->id, $this->form->subject_ids))
+                                <div class="mt-2">
+                                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        Carrera Universitaria
+                                    </label>
+                                    <select wire:model="form.subject_careers.{{ $subject->id }}"
+                                            class="w-full text-xs px-2 py-1 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-300">
+                                        <option value="">-- Seleccione una carrera --</option>
+                                        @foreach(\App\Models\UniversityCareer::orderBy('name')->get() as $career)
+                                            <option value="{{ $career->id }}">
+                                                {{ $career->code }} - {{ $career->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endif
                         </div>
                     </label>
                 @empty

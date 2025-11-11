@@ -37,6 +37,14 @@
                             {{ __('Profile') }}
                         </x-dropdown-link>
 
+                        <x-dropdown-link :href="route('my-schedule.index')"
+                                         class="hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 dark:hover:from-gray-800 dark:hover:to-gray-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all duration-200 transform hover:translate-x-1">
+                            <svg class="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            Mi Horario
+                        </x-dropdown-link>
+
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
 

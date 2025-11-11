@@ -13,6 +13,7 @@ return new class extends Migration {
         Schema::create('groups', function (Blueprint $table) {
             $table->id();
             $table->char('name', 3);
+            $table->foreignId('academic_management_id')->nullable()->constrained('academic_management')->onDelete('cascade');
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

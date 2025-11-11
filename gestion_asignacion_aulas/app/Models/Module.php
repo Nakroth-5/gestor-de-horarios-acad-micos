@@ -17,9 +17,17 @@ class Module extends Model
         'is_active' => 'boolean',
     ];
 
+    protected $appends = ['name'];
+
     // Relationships
     public function classrooms(): HasMany
     {
         return $this->hasMany(Classroom::class);
+    }
+
+    // Attributes
+    public function getNameAttribute(): string
+    {
+        return 'Módulo ' . $this->code;
     }
 }

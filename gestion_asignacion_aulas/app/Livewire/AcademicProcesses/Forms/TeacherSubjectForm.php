@@ -13,6 +13,7 @@ class TeacherSubjectForm extends Form
 {
     public ?int $user_id = null;
     public array $subject_ids = [];
+    public array $subject_careers = []; // Carrera por cada materia
 
     public function rules(): array
     {
@@ -20,6 +21,7 @@ class TeacherSubjectForm extends Form
             'user_id' => 'required|exists:users,id',
             'subject_ids' => 'required|array|min:1',
             'subject_ids.*' => 'required|exists:subjects,id',
+            'subject_careers.*' => 'nullable|exists:university_careers,id',
         ];
     }
 
@@ -30,8 +32,14 @@ class TeacherSubjectForm extends Form
     {
         $this->user_id = $user->id;
 
-        // Cargar las materias asignadas actualmente al docente usando la relación
-        $this->subject_ids = $user->subjects()->pluck('subjects.id')->toArray();
+        // Cargar las materias asignadas actualmente al docente con sus carreras
+        $userSubjects = UserSubject::where('user_id', $user->id)->get();
+        $this->subject_ids = $userSubjects->pluck('subject_id')->toArray();
+        
+        // Cargar las carreras asociadas
+        foreach ($userSubjects as $us) {
+            $this->subject_careers[$us->subject_id] = $us->university_career_id;
+        }
     }
 
     /**
@@ -42,6 +50,7 @@ class TeacherSubjectForm extends Form
         return [
             'user_id' => $this->user_id,
             'subject_ids' => $this->subject_ids,
+            'subject_careers' => $this->subject_careers,
         ];
     }
 
@@ -53,5 +62,6 @@ class TeacherSubjectForm extends Form
         parent::reset(...$properties);
         $this->user_id = null;
         $this->subject_ids = [];
+        $this->subject_careers = [];
     }
 }

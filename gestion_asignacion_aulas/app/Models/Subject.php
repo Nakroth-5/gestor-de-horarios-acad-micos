@@ -29,4 +29,11 @@ class Subject extends Model
     {
         return $this->hasMany(Assignment::class);
     }
+
+    public function universityCareers()
+    {
+        return $this->belongsToMany(UniversityCareer::class, 'subject_university_career')
+            ->withPivot(['semester', 'is_required'])
+            ->withTimestamps();
+    }
 }
