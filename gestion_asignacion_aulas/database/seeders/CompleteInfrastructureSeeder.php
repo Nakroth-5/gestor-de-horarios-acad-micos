@@ -14,8 +14,8 @@ class CompleteInfrastructureSeeder extends Seeder
     {
         // 1. Crear Módulo
         $moduleId = DB::table('modules')->insertGetId([
-            'name' => '236',
-            'location' => 'Edificio 36',
+            'code' => 236,
+            'address' => 'Edificio 36',
             'is_active' => true,
             'created_at' => now(),
             'updated_at' => now(),
@@ -27,9 +27,8 @@ class CompleteInfrastructureSeeder extends Seeder
         // Aulas normales 11-36
         for ($i = 11; $i <= 36; $i++) {
             $classrooms[] = [
-                'name' => "$i",
-                'number' => "$i",
-                'type' => 'Aula Normal',
+                'number' => $i,
+                'type' => 'aula',
                 'capacity' => 60,
                 'module_id' => $moduleId,
                 'is_active' => true,
@@ -41,9 +40,8 @@ class CompleteInfrastructureSeeder extends Seeder
         // Aulas de laboratorio 41-46
         for ($i = 41; $i <= 46; $i++) {
             $classrooms[] = [
-                'name' => "$i",
-                'number' => "$i",
-                'type' => 'Laboratorio PCs',
+                'number' => $i,
+                'type' => 'laboratorio pcs',
                 'capacity' => 60,
                 'module_id' => $moduleId,
                 'is_active' => true,
