@@ -154,7 +154,7 @@ class AttendanceQrManager extends Component
             // Buscar o generar token QR
             $qrToken = $this->getOrCreateQrToken($attendanceRecord, $assignment);
 
-            // Generar código QR
+            // Generar código QR en SVG (no requiere extensiones)
             $url = route('attendance.scan', [
                 'assignment' => $assignmentId,
                 'token' => $qrToken->token
@@ -285,7 +285,7 @@ class AttendanceQrManager extends Component
     }
 
     /**
-     * Descargar QR como imagen PNG
+     * Descargar QR como imagen SVG (compatible con todos los dispositivos móviles)
      */
     public function downloadQr()
     {
@@ -298,9 +298,10 @@ class AttendanceQrManager extends Component
             'token' => $this->currentToken->token
         ]);
 
-        // Generar QR usando SVG (no requiere extensiones de imagen)
+        // Generar QR en formato SVG (compatible con móviles, no requiere extensiones)
         $qrCodeSvg = QrCode::size(500)
             ->format('svg')
+            ->errorCorrection('H')
             ->generate($url);
 
         $filename = 'QR_Asistencia_' . $this->currentAssignment->userSubject->subject->code . '_' . now()->format('Y-m-d') . '.svg';
