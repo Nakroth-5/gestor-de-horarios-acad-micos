@@ -61,6 +61,11 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class);
     }
 
+    public function subjects(): BelongsToMany
+    {
+        return $this->belongsToMany(Subject::class, 'user_subjects');
+    }
+
     public function assignments(): HasMany
     {
         return $this->hasMany(Assignment::class);

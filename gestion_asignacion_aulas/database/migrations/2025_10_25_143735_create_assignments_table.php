@@ -57,7 +57,7 @@ return new class extends Migration {
             // 2. Evita que una materia se asigne al mismo grupo más de una vez
             // Incluimos academic_management_id para que sea por periodo
             $table->unique(
-                ['subject_id', 'group_id', 'academic_management_id'],
+                ['subject_id', 'group_id', 'day_schedule_id','academic_management_id'],
                 'unique_subject_group'
             );
 

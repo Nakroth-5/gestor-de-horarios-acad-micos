@@ -13,11 +13,12 @@ class AcademicManagementSeeder extends Seeder
      */
     public function run(): void
     {
+        DB::table('academic_management')->delete();
         DB::table('academic_management')->insert([
             [
                 'name' => 'Gestión 2/2025',
-                'start_date' => now(),
-                'end_date' => now(),
+                'start_date' => '2025-08-01', // Inicio del segundo semestre 2025
+                'end_date' => '2025-12-31',   // Fin del año
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

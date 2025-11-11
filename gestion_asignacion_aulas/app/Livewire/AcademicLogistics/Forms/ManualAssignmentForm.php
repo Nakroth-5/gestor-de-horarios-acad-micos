@@ -55,3 +55,4 @@ class ManualAssignmentForm extends Form
         $this->resetValidation();
     }
 }
+

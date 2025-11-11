@@ -7,10 +7,8 @@ use App\Models\AcademicManagement;
 use App\Models\Assignment;
 use App\Models\Classroom;
 use App\Models\DaySchedule;
-use App\Models\UniversityCareer;
 use App\Models\UserSubject;
 use App\Models\Group;
-use App\Models\User;
 use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
@@ -38,27 +36,27 @@ class ManualScheduleAssignment extends Component
     public $allAcademic = [];
     public $allGroups = [];
 
-    public $existingAssignments = [];
-
-    // Array para todos los días de la semana
-    public $schedules = [];
-
-    // Días de la semana disponibles
-    public $daysOfWeek = [
-        'Monday',
-        'Tuesday',
-        'Wednesday',
-        'Thursday',
-        'Friday',
-        'Saturday'
+    public $schedules = [
+        ['day_schedule_id' => null, 'classroom_id' => null],
+        ['day_schedule_id' => null, 'classroom_id' => null],
+        ['day_schedule_id' => null, 'classroom_id' => null],
+        ['day_schedule_id' => null, 'classroom_id' => null],
+        ['day_schedule_id' => null, 'classroom_id' => null],
+        ['day_schedule_id' => null, 'classroom_id' => null]
     ];
+
+    // Mapeo de día en español a DaySchedule que corresponden a ese día
+    private $daySchedulesByDayName = [];
 
     public function render(): View
     {
         $assignments = $this->getGroupedAssignments();
 
         return view('livewire.academic-logistics.manual-schedule-assigment.manual-schedule-assignment',
-            compact('assignments'));
+            compact(
+                'assignments',
+                'this'
+            ));
     }
 
     private function getGroupedAssignments(): Collection
@@ -100,14 +98,16 @@ class ManualScheduleAssignment extends Component
             $first = $group->first();
             $userSubject = $first->userSubject;
 
+            // Ordenar por día de la semana
             $schedules = $group->sortBy(function ($assignment) {
                 $dayOrder = [
-                    'Monday' => 1,
-                    'Tuesday' => 2,
-                    'Wednesday' => 3,
-                    'Thursday' => 4,
-                    'Friday' => 5,
-                    'Saturday' => 6,
+                    'Lunes' => 1,
+                    'Martes' => 2,
+                    'Miércoles' => 3,
+                    'Jueves' => 4,
+                    'Viernes' => 5,
+                    'Sábado' => 6,
+                    'Domingo' => 7
                 ];
                 return $dayOrder[$assignment->daySchedule->day->name] ?? 8;
             });
@@ -123,9 +123,9 @@ class ManualScheduleAssignment extends Component
         })->values();
     }
 
-
     public function getRelations(): void
     {
+        // Obtener todas las combinaciones de docente-materia
         $this->allUserSubject = UserSubject::with(['subject', 'user'])
             ->whereHas('subject', function ($q) {
                 $q->where('is_active', true);
@@ -144,28 +144,13 @@ class ManualScheduleAssignment extends Component
     public function mount(): void
     {
         $this->getRelations();
-
-        // Instanciar valores por defecto de los horarios por día
-        $this->initializeSchedules();
-    }
-
-    private function initializeSchedules(): void
-    {
-        $this->schedules = [];
-        foreach ($this->daysOfWeek as $day) {
-            $this->schedules[$day] = [
-                'day_schedule_id' => null,
-                'classroom_id' => null
-            ];
-        }
     }
 
     public function openCreateModal(): void
     {
         $this->editing = null;
         $this->form->reset();
-        $this->initializeSchedules();
-        $this->existingAssignments = [];
+        $this->resetSchedules();
         $this->show = true;
     }
 
@@ -177,29 +162,27 @@ class ManualScheduleAssignment extends Component
         $this->editing = $id;
         $this->form->setAssignment($assignment);
 
+        // Cargar todos los horarios de esta asignatura
         $allAssignments = Assignment::where('user_subject_id', $assignment->user_subject_id)
             ->where('group_id', $assignment->group_id)
             ->where('academic_management_id', $assignment->academic_management_id)
-            ->with(['daySchedule.day'])
             ->get();
 
-        $this->initializeSchedules();
-        $this->existingAssignments = [];
+        $this->resetSchedules();
 
-        foreach ($allAssignments as $assign) {
-            // Normalizar el nombre del día para que coincida con las claves en $this->daysOfWeek
-            $rawDayName = $assign->daySchedule->day->name ?? '';
-            $dayName = ucfirst(strtolower(trim($rawDayName)));
-
-            if (in_array($dayName, $this->daysOfWeek, true)) {
-                // Asegurar que los IDs estén en formato entero (no strings) para que los selects los reconozcan
-                $this->schedules[$dayName] = [
-                    'day_schedule_id' => $assign->day_schedule_id ? (int) $assign->day_schedule_id : null,
-                    'classroom_id' => $assign->classroom_id ? (int) $assign->classroom_id : null
-                ];
-                $this->existingAssignments[$dayName] = $assign->id;
-            }
+        // Llenar los horarios existentes
+        foreach ($allAssignments as $index => $assign) {
+            $this->schedules[$index] = [
+                'day_schedule_id' => $assign->day_schedule_id,
+                'classroom_id' => $assign->classroom_id
+            ];
         }
+
+        // Si hay menos de 3 horarios, asegurar que tengamos 3 slots
+        while (count($this->schedules) < 3) {
+            $this->schedules[] = ['day_schedule_id' => null, 'classroom_id' => null];
+        }
+
         $this->show = true;
     }
 
@@ -207,65 +190,45 @@ class ManualScheduleAssignment extends Component
     {
         $this->show = false;
         $this->form->reset();
-        $this->initializeSchedules();
+        $this->resetSchedules();
         $this->editing = null;
         $this->dispatch('modal-closed');
     }
 
-    // Método para obtener los horarios filtrados por día
-    public function getSchedulesForDay($dayName): Collection
-    {
-        return $this->allDaySchedule->filter(function ($daySchedule) use ($dayName) {
-            if (!$daySchedule || !$daySchedule->day) {
-                return false;
-            }
-            $scheduleDayName = trim($daySchedule->day->name);
-            return strcasecmp($scheduleDayName, $dayName) === 0;
-        });
-    }
-
-    // Método para obtener el nombre del día en español
-    public function getDayNameInSpanish($dayName): string
-    {
-        $translations = [
-            'Monday' => 'Lunes',
-            'Tuesday' => 'Martes',
-            'Wednesday' => 'Miércoles',
-            'Thursday' => 'Jueves',
-            'Friday' => 'Viernes',
-            'Saturday' => 'Sábado'
-        ];
-        return $translations[$dayName] ?? $dayName;
-    }
-
     public function save(): void
     {
-
         $this->validate([
             'form.user_subject_id' => 'required|exists:user_subjects,id',
             'form.group_id' => 'required|exists:groups,id',
             'form.academic_id' => 'nullable|exists:academic_management,id',
+            'schedules.*.day_schedule_id' => 'nullable|exists:day_schedules,id',
+            'schedules.*.classroom_id' => 'required_with:schedules.*.day_schedule_id|exists:classrooms,id',
         ], [
-            'form.user_subject_id.required' => 'Debe seleccionar un docente y materia.',
-            'form.group_id.required' => 'Debe seleccionar un grupo.',
+            'schedules.*.day_schedule_id.exists' => 'Uno de los horarios seleccionados no es válido.',
+            'schedules.*.classroom_id.required_with' => 'Debe seleccionar un aula para el horario.',
+            'schedules.*.classroom_id.exists' => 'Uno de los aulas seleccionadas no es válida.',
         ]);
 
         try {
-            // Filtrar solo los horarios completos (con día-horario Y aula)
-            $validSchedules = $this->getValidSchedules();
+            // Validar que al menos un horario esté seleccionado
+            $selectedSchedules = array_filter($this->schedules, function($schedule) {
+                return !empty($schedule['day_schedule_id']) && !empty($schedule['classroom_id']);
+            });
 
-            if (empty($validSchedules)) {
-                throw new \Exception("Debe seleccionar al menos un horario completo (día, horario y aula).");
+            if (empty($selectedSchedules)) {
+                throw new \Exception('Debe seleccionar al menos un horario con su aula correspondiente.');
             }
 
-            $this->validateConflicts($validSchedules);
+            $this->validateConflicts();
 
             $userSubject = UserSubject::find($this->form->user_subject_id);
 
             if ($this->editing) {
-                $this->updateExistingAssignment($userSubject, $validSchedules);
+                // Modo edición: actualizar solo los cambios
+                $this->updateExistingAssignments($selectedSchedules, $userSubject);
             } else {
-                $this->createNewAssignment($userSubject, $validSchedules);
+                // Modo creación: crear nuevas asignaciones
+                $this->createNewAssignments($selectedSchedules, $userSubject);
             }
 
             session()->flash('message',
@@ -274,52 +237,103 @@ class ManualScheduleAssignment extends Component
 
             $this->closeModal();
             $this->getRelations();
+
         } catch (\Exception $e) {
             session()->flash('error', $e->getMessage());
         }
     }
 
-    /**
-     * Obtiene solo los horarios válidos (con día-horario Y aula seleccionados)
-     */
-    private function getValidSchedules(): array
+    private function updateExistingAssignments(array $selectedSchedules, UserSubject $userSubject): void
     {
-        $validSchedules = [];
+        // Obtener asignaciones existentes
+        $existingAssignments = Assignment::where('user_subject_id', $this->form->user_subject_id)
+            ->where('group_id', $this->form->group_id)
+            ->where('academic_management_id', $this->form->academic_id)
+            ->get();
 
-        foreach ($this->schedules as $day => $schedule) {
-            // Solo agregar si AMBOS campos están seleccionados
-            if (!empty($schedule['day_schedule_id']) && !empty($schedule['classroom_id'])) {
-                $validSchedules[$day] = $schedule;
+        $existingScheduleIds = [];
+        $processedSchedules = [];
+
+        // Actualizar o crear asignaciones
+        foreach ($selectedSchedules as $schedule) {
+            if ($schedule['day_schedule_id'] && $schedule['classroom_id']) {
+                $scheduleKey = $schedule['day_schedule_id'] . '-' . $schedule['classroom_id'];
+
+                // Buscar si ya existe esta asignación
+                $existingAssignment = $existingAssignments->first(function ($assignment) use ($schedule) {
+                    return $assignment->day_schedule_id == $schedule['day_schedule_id']
+                        && $assignment->classroom_id == $schedule['classroom_id'];
+                });
+
+                if ($existingAssignment) {
+                    // Ya existe, mantenerla
+                    $existingScheduleIds[] = $existingAssignment->id;
+                    $processedSchedules[] = $existingAssignment;
+                } else {
+                    // Crear nueva asignación
+                    $newAssignment = Assignment::create([
+                        'user_subject_id' => $this->form->user_subject_id,
+                        'subject_id' => $userSubject->subject_id,
+                        'group_id' => $this->form->group_id,
+                        'classroom_id' => $schedule['classroom_id'],
+                        'day_schedule_id' => $schedule['day_schedule_id'],
+                        'academic_management_id' => $this->form->academic_id,
+                    ]);
+                    $existingScheduleIds[] = $newAssignment->id;
+                    $processedSchedules[] = $newAssignment;
+                }
             }
         }
 
-        return $validSchedules;
+        // Eliminar asignaciones que ya no están en los horarios seleccionados
+        $assignmentsToDelete = $existingAssignments->whereNotIn('id', $existingScheduleIds);
+        foreach ($assignmentsToDelete as $assignment) {
+            $assignment->delete();
+        }
     }
 
-    /**
-     * @throws Exception
-     */
-    private function validateConflicts(array $validSchedules): void
+    private function createNewAssignments(array $selectedSchedules, UserSubject $userSubject): void
     {
-        foreach ($validSchedules as $day => $schedule) {
-            $query = Assignment::where('classroom_id', $schedule['classroom_id'])
+        foreach ($selectedSchedules as $schedule) {
+            if ($schedule['day_schedule_id'] && $schedule['classroom_id']) {
+                Assignment::create([
+                    'user_subject_id' => $this->form->user_subject_id,
+                    'subject_id' => $userSubject->subject_id,
+                    'group_id' => $this->form->group_id,
+                    'classroom_id' => $schedule['classroom_id'],
+                    'day_schedule_id' => $schedule['day_schedule_id'],
+                    'academic_management_id' => $this->form->academic_id,
+                ]);
+            }
+        }
+    }
+    private function validateConflicts(): void
+    {
+        $selectedSchedules = array_filter($this->schedulesByDay, function ($schedule) {
+            return !empty($schedule['day_schedule_id']) && !empty($schedule['classroom_id']);
+        });
+
+        // Obtener IDs de asignaciones existentes (en modo edición)
+        $existingAssignmentIds = [];
+        if ($this->editing) {
+            $existingAssignments = Assignment::where('user_subject_id', $this->form->user_subject_id)
+                ->where('group_id', $this->form->group_id)
+                ->where('academic_management_id', $this->form->academic_id)
+                ->get();
+            $existingAssignmentIds = $existingAssignments->pluck('id')->toArray();
+        }
+
+        foreach ($selectedSchedules as $dayName => $schedule) {
+            // Validar conflicto de aula
+            $classroomConflictQuery = Assignment::where('classroom_id', $schedule['classroom_id'])
                 ->where('day_schedule_id', $schedule['day_schedule_id'])
                 ->where('academic_management_id', $this->form->academic_id);
 
-            // En modo edición, excluir los assignments existentes de esta misma asignatura
-            if ($this->editing) {
-                $existingAssignmentIds = Assignment::where('user_subject_id', $this->form->user_subject_id)
-                    ->where('group_id', $this->form->group_id)
-                    ->where('academic_management_id', $this->form->academic_id)
-                    ->pluck('id')
-                    ->toArray();
-
-                $query->whereNotIn('id', $existingAssignmentIds);
+            if ($this->editing && !empty($existingAssignmentIds)) {
+                $classroomConflictQuery->whereNotIn('id', $existingAssignmentIds);
             }
 
-            $classroomConflict = $query->exists();
-
-            if ($classroomConflict) {
+            if ($classroomConflictQuery->exists()) {
                 $daySchedule = DaySchedule::with(['day', 'schedule'])->find($schedule['day_schedule_id']);
                 $classroom = Classroom::find($schedule['classroom_id']);
                 throw new \Exception(
@@ -331,19 +345,19 @@ class ManualScheduleAssignment extends Component
             }
         }
 
-        // Validar conflicto de materia-grupo en el mismo periodo (solo para creación)
-        if (!$this->editing) {
-            $userSubject = UserSubject::find($this->form->user_subject_id);
+        // Validar conflicto de materia-grupo
+        $userSubject = UserSubject::find($this->form->user_subject_id);
+        if ($userSubject) {
+            $subjectGroupConflictQuery = Assignment::where('subject_id', $userSubject->subject_id)
+                ->where('group_id', $this->form->group_id)
+                ->where('academic_management_id', $this->form->academic_id);
 
-            if ($userSubject) {
-                $subjectGroupConflict = Assignment::where('subject_id', $userSubject->subject_id)
-                    ->where('group_id', $this->form->group_id)
-                    ->where('academic_management_id', $this->form->academic_id)
-                    ->exists();
+            if ($this->editing) {
+                $subjectGroupConflictQuery->where('user_subject_id', '!=', $this->form->user_subject_id);
+            }
 
-                if ($subjectGroupConflict) {
-                    throw new \Exception('Esta materia ya está asignada a este grupo en el periodo académico seleccionado.');
-                }
+            if ($subjectGroupConflictQuery->exists()) {
+                throw new \Exception('Esta materia ya está asignada a este grupo en el periodo académico seleccionado.');
             }
         }
     }
@@ -365,6 +379,18 @@ class ManualScheduleAssignment extends Component
         }
     }
 
+    private function resetSchedules(): void
+    {
+        $this->schedulesByDay = [
+            'Lunes' => ['day_schedule_id' => null, 'classroom_id' => null],
+            'Martes' => ['day_schedule_id' => null, 'classroom_id' => null],
+            'Miércoles' => ['day_schedule_id' => null, 'classroom_id' => null],
+            'Jueves' => ['day_schedule_id' => null, 'classroom_id' => null],
+            'Viernes' => ['day_schedule_id' => null, 'classroom_id' => null],
+            'Sábado' => ['day_schedule_id' => null, 'classroom_id' => null],
+        ];
+    }
+
     public function updatingSearch(): void
     {
         $this->resetPage();
@@ -376,70 +402,20 @@ class ManualScheduleAssignment extends Component
         $this->resetPage();
     }
 
-    private function updateExistingAssignment($userSubject, array $validSchedules): void
+    // Obtener horarios disponibles para un día específico
+    public function getSchedulesForDay(string $dayName): array
     {
-        // Obtener assignments existentes para comparar
-        $existingAssignments = Assignment::where('user_subject_id', $this->form->user_subject_id)
-            ->where('group_id', $this->form->group_id)
-            ->where('academic_management_id', $this->form->academic_id)
-            ->where('university_career_id', $this->form->university_id)
-            ->with('daySchedule.day')
-            ->get()
-            ->keyBy(function ($item) {
-                return $item->daySchedule->day->name;
-            });
-
-        $processedDays = [];
-
-        foreach ($validSchedules as $day => $schedule) {
-            $processedDays[] = $day;
-
-            if (isset($existingAssignments[$day])) {
-                // Actualizar si cambió el aula o el horario
-                $existingAssignment = $existingAssignments[$day];
-                if ($existingAssignment->classroom_id != $schedule['classroom_id'] ||
-                    $existingAssignment->day_schedule_id != $schedule['day_schedule_id']) {
-                    $existingAssignment->update([
-                        'classroom_id' => $schedule['classroom_id'],
-                        'day_schedule_id' => $schedule['day_schedule_id'],
-                        'subject_id' => $userSubject->subject_id,
-                    ]);
-                }
-            } else {
-                // Crear nuevo assignment
-                Assignment::create([
-                    'user_subject_id' => $this->form->user_subject_id,
-                    'subject_id' => $userSubject->subject_id,
-                    'group_id' => $this->form->group_id,
-                    'classroom_id' => $schedule['classroom_id'],
-                    'day_schedule_id' => $schedule['day_schedule_id'],
-                    'academic_management_id' => $this->form->academic_id,
-                ]);
-            }
+        // Si no existe el día en el mapeo, retornar array vacío
+        if (!isset($this->daySchedulesByDayName[$dayName])) {
+            return [];
         }
 
-        // Eliminar assignments que ya no están en los días seleccionados
-        $schedulesToDelete = $existingAssignments->filter(function ($assignment, $day) use ($processedDays) {
-            return !in_array($day, $processedDays);
-        });
-
-        foreach ($schedulesToDelete as $assignmentToDelete) {
-            $assignmentToDelete->delete();
+        $schedules = [];
+        foreach ($this->daySchedulesByDayName[$dayName] as $daySchedule) {
+            $schedules[] = $daySchedule;
         }
-    }
 
-    private function createNewAssignment($userSubject, array $validSchedules): void
-    {
-       // dd($this->all());
-        foreach ($validSchedules as $day => $schedule) {
-            Assignment::create([
-                'user_subject_id' => $this->form->user_subject_id,
-                'subject_id' => $userSubject->subject_id,
-                'group_id' => $this->form->group_id,
-                'classroom_id' => $schedule['classroom_id'],
-                'day_schedule_id' => $schedule['day_schedule_id'],
-                'academic_management_id' => $this->form->academic_id,
-            ]);
-        }
+        return $schedules;
     }
 }
+

@@ -2,6 +2,12 @@ import './bootstrap';
 
 import Alpine from 'alpinejs';
 import 'flowbite';
-window.Alpine = Alpine;
 
-Alpine.start();
+// Defer Alpine start for Livewire
+window.Alpine = Alpine;
+window.Alpine.plugin;
+
+// Start Alpine after DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    Alpine.start();
+});
