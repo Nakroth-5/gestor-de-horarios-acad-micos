@@ -60,83 +60,39 @@
 
         {{-- Horarios con aulas individuales --}}
         <div class="md:col-span-2">
-            <div class="flex items-center justify-between mb-4">
-                <x-input-label :value="__('Schedules with Classrooms (up to 3)')"/>
-                <button type="button" wire:click="addSchedule" class="text-sm text-blue-600 hover:text-blue-800">
-                    + Agregar otro horario
-                </button>
-            </div>
-
             <div class="space-y-4">
-                @foreach($schedules as $index => $schedule)
-                    <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Horario {{ $index + 1 }}
-                            </span>
-                            @if($index > 0)
-                                <button type="button"
-                                        wire:click="removeSchedule({{ $index }})"
-                                        class="text-red-600 hover:text-red-800">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
-                                         fill="currentColor">
-                                        <path fill-rule="evenodd"
-                                              d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                              clip-rule="evenodd"/>
-                                    </svg>
-                                </button>
-                            @endif
-                        </div>
+                {{-- Horario --}}
+                @php
+                    $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                @endphp
+                @for($i = 0; $i < 6; $i++)
+                    <x-container-second-div>
+                        <x-input-label for="day_{{ $i }}" :value="__($days[$i])"/>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {{-- Horario --}}
+                        <div class="grid grid-cols-2 md:grid-cols-2 gap-4">
                             <div>
-                                <x-select-input name="schedule_id_lunes">
-
-                                    @foreach($allDaySchedule->where('day_id', 1) as $daySchedule)
-
-                                        {{-- Usamos el ID del 'day_schedule' como valor --}}
+                                <x-input-label for="schedule_{{ $i }}" :value="__('Schedule')"/>
+                                <x-select-input
+                                    name="schedules.{{ $i }}.day_schedule_id"
+                                    wire:model="schedules.{{ $i }}.day_schedule_id"
+                                >
+                                    <option value="">{{ __('Select Schedule') }}</option>
+                                    @foreach($allDaySchedule->where('day_id', $i + 1) as $daySchedule)
                                         <option value="{{ $daySchedule->id }}">
-
-                                            {{--
-                                              Accedemos a la relación 'schedule' para obtener
-                                              la hora de inicio y fin.
-                                            --}}
                                             {{ date('H:i', strtotime($daySchedule->schedule->start)) }} -
                                             {{ date('H:i', strtotime($daySchedule->schedule->end)) }}
 
                                         </option>
                                     @endforeach
-
-                                </x-select-input>
-
-                                <x-select-input name="schedule_id_lunes">
-
-                                    @foreach($allDaySchedule->where('day_id', 2) as $daySchedule)
-
-                                        {{-- Usamos el ID del 'day_schedule' como valor --}}
-                                        <option value="{{ $daySchedule->id }}">
-
-                                            {{--
-                                              Accedemos a la relación 'schedule' para obtener
-                                              la hora de inicio y fin.
-                                            --}}
-                                            {{ date('H:i', strtotime($daySchedule->schedule->start)) }} -
-                                            {{ date('H:i', strtotime($daySchedule->schedule->end)) }}
-
-                                        </option>
-                                    @endforeach
-
                                 </x-select-input>
                             </div>
 
-                            {{-- Aula para este horario --}}
                             <div>
-                                <x-input-label for="classroom_{{ $index }}" :value="__('Classroom')"/>
-                                <select
-                                    wire:model="schedules.{{ $index }}.classroom_id"
-                                    id="classroom_{{ $index }}"
-                                    class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                <x-input-label for="classroom_{{ $i }}" :value="__('Classroom')"/>
+                                <x-select-input
+                                    wire:model="schedules.{{ $i }}.classroom_id"
+                                    id="classroom_{{ $i }}"
+                                >
                                     <option value="">{{ __('Select Classroom') }}</option>
                                     @foreach($allClassroom as $classroom)
                                         <option value="{{ $classroom->id }}">
@@ -144,20 +100,20 @@
                                             Módulo {{ $classroom->module->code ?? 'N/A' }}
                                         </option>
                                     @endforeach
-                                </select>
+                                </x-select-input>
                                 <x-input-error class="mt-2"
-                                               :messages="$errors->get('schedules.' . $index . '.classroom_id')"/>
+                                               :messages="$errors->get('schedules.' . $i . '.classroom_id')"/>
                             </div>
                         </div>
-                    </div>
-                @endforeach
+                    </x-container-second-div>
+
+                @endfor
             </div>
         </div>
-    </div>
 
-    @if (session()->has('error'))
-        <div class="mt-4 p-4 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 rounded">
-            {{ session('error') }}
-        </div>
+        @if (session()->has('error'))
+            <div class="mt-4 p-4 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 rounded">
+                {{ session('error') }}
+            </div>
     @endif
 </x-modal-base>

@@ -23,11 +23,14 @@
         </div>
     </x-table-header>
 
+    @php
+        $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    @endphp
     {{-- 3 columnas para horarios con aulas --}}
-    @for($i = 1; $i <= 3; $i++)
+    @for($i = 0; $i < 6; $i++)
         <x-table-header>
             <div class="flex items-center space-x-2">
-                <x-icons.timedate class="w-4 h-4" /> <span>{{ __('DIA') }} {{ $i }}</span>
+                <x-icons.timedate class="w-4 h-4" /> <x-input-label for="day_{{ $i }}" :value="__($days[$i])"/>
             </div>
         </x-table-header>
 
@@ -37,4 +40,10 @@
             </div>
         </x-table-header>
     @endfor
+
+    <x-table-header>
+        <div class="flex items-center space-x-2">
+            <x-icons.settings class="w-4 h-4" /> <span>{{ __('Action') }}</span>
+        </div>
+    </x-table-header>
 </div>

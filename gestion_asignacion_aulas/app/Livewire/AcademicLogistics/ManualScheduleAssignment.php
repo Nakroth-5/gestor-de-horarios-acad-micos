@@ -35,14 +35,13 @@ class ManualScheduleAssignment extends Component
     public $allClassroom = [];
     public $allAcademic = [];
     public $allGroups = [];
-
     public $schedules = [
         ['day_schedule_id' => null, 'classroom_id' => null],
         ['day_schedule_id' => null, 'classroom_id' => null],
         ['day_schedule_id' => null, 'classroom_id' => null],
         ['day_schedule_id' => null, 'classroom_id' => null],
         ['day_schedule_id' => null, 'classroom_id' => null],
-        ['day_schedule_id' => null, 'classroom_id' => null]
+        ['day_schedule_id' => null, 'classroom_id' => null],
     ];
 
     // Mapeo de día en español a DaySchedule que corresponden a ese día
@@ -98,26 +97,45 @@ class ManualScheduleAssignment extends Component
             $first = $group->first();
             $userSubject = $first->userSubject;
 
-            // Ordenar por día de la semana
+            // --- INICIO DE LA CORRECCIÓN ---
+            // Ordenar por día de la semana (usando nombres en inglés)
             $schedules = $group->sortBy(function ($assignment) {
+                // Asegúrate de que la relación existe antes de acceder a ella
+                if (!$assignment->daySchedule || !$assignment->daySchedule->day) {
+                    return 8; // Enviar al final si hay datos corruptos
+                }
+
                 $dayOrder = [
-                    'Lunes' => 1,
-                    'Martes' => 2,
-                    'Miércoles' => 3,
-                    'Jueves' => 4,
-                    'Viernes' => 5,
-                    'Sábado' => 6,
-                    'Domingo' => 7
+                    'Monday' => 1,
+                    'Tuesday' => 2,
+                    'Wednesday' => 3,
+                    'Thursday' => 4,
+                    'Friday' => 5,
+                    'Saturday' => 6,
+                    'Sunday' => 7
                 ];
+                // Usa los nombres en inglés para ordenar
                 return $dayOrder[$assignment->daySchedule->day->name] ?? 8;
             });
+
+            // Construir un arreglo fijo por día (0 = Lunes ... 5 = Sábado)
+            $schedulesByDay = array_fill(0, 6, null);
+            foreach ($group as $assignment) {
+                if ($assignment->daySchedule && $assignment->daySchedule->day) {
+                    $dayId = (int) $assignment->daySchedule->day->id; // 1=Lunes
+                    if ($dayId >= 1 && $dayId <= 6) {
+                        $schedulesByDay[$dayId - 1] = $assignment;
+                    }
+                }
+            }
 
             return [
                 'subject_code' => $userSubject->subject->code,
                 'subject_group' => $first->group->name,
                 'subject_name' => $userSubject->subject->name,
                 'teacher_name' => $userSubject->user->name . ' ' . $userSubject->user->last_name,
-                'schedules' => $schedules,
+                'schedules' => $schedules, // colección ordenada (compatibilidad)
+                'schedules_by_day' => $schedulesByDay, // arreglo 0..5 con Assignment|null
                 'ids' => $group->pluck('id')->toArray()
             ];
         })->values();
@@ -148,6 +166,9 @@ class ManualScheduleAssignment extends Component
 
     public function openCreateModal(): void
     {
+        // Asegurar que las relaciones están cargadas para los selects
+        $this->getRelations();
+
         $this->editing = null;
         $this->form->reset();
         $this->resetSchedules();
@@ -156,31 +177,46 @@ class ManualScheduleAssignment extends Component
 
     public function edit($id): void
     {
+        // Asegurar que las relaciones están cargadas para los selects
+        $this->getRelations();
+
+        //Obtener la asignación base
         $assignment = Assignment::with(['userSubject', 'group', 'classroom', 'daySchedule', 'academicManagement'])
             ->findOrFail($id);
 
         $this->editing = $id;
         $this->form->setAssignment($assignment);
 
-        // Cargar todos los horarios de esta asignatura
+        //Cargar TODAS las asignaciones relacionadas
         $allAssignments = Assignment::where('user_subject_id', $assignment->user_subject_id)
             ->where('group_id', $assignment->group_id)
             ->where('academic_management_id', $assignment->academic_management_id)
+            ->with('daySchedule.day')
             ->get();
 
+        //Resetear los 6 slots de horarios
         $this->resetSchedules();
 
-        // Llenar los horarios existentes
-        foreach ($allAssignments as $index => $assign) {
-            $this->schedules[$index] = [
-                'day_schedule_id' => $assign->day_schedule_id,
-                'classroom_id' => $assign->classroom_id
-            ];
-        }
+        //    Colocar cada asignación en su índice de día correcto
+        foreach ($allAssignments as $assign) {
 
-        // Si hay menos de 3 horarios, asegurar que tengamos 3 slots
-        while (count($this->schedules) < 3) {
-            $this->schedules[] = ['day_schedule_id' => null, 'classroom_id' => null];
+            // Asegurarnos que la relación cargó correctamente
+            if ($assign->daySchedule && $assign->daySchedule->day) {
+
+                // Obtenemos el ID del día (1=Lunes, 2=Martes, ...)
+                $dayId = $assign->daySchedule->day->id;
+
+                // Calculamos el índice del array (0=Lunes, 1=Martes, ...)
+                $index = $dayId - 1;
+
+                // Asignamos al slot correcto (solo si es de Lunes a Sábado: 0 a 5)
+                if ($index >= 0 && $index < 6) {
+                    $this->schedules[$index] = [
+                        'day_schedule_id' => $assign->day_schedule_id,
+                        'classroom_id' => $assign->classroom_id
+                    ];
+                }
+            }
         }
 
         $this->show = true;
@@ -197,15 +233,16 @@ class ManualScheduleAssignment extends Component
 
     public function save(): void
     {
+        //dd($this->all());
         $this->validate([
             'form.user_subject_id' => 'required|exists:user_subjects,id',
             'form.group_id' => 'required|exists:groups,id',
             'form.academic_id' => 'nullable|exists:academic_management,id',
             'schedules.*.day_schedule_id' => 'nullable|exists:day_schedules,id',
-            'schedules.*.classroom_id' => 'required_with:schedules.*.day_schedule_id|exists:classrooms,id',
+            'schedules.*.classroom_id' => 'nullable|exists:classrooms,id',
         ], [
             'schedules.*.day_schedule_id.exists' => 'Uno de los horarios seleccionados no es válido.',
-            'schedules.*.classroom_id.required_with' => 'Debe seleccionar un aula para el horario.',
+            'schedules.*.classroom_id' => 'Debe seleccionar un aula para el horario.',
             'schedules.*.classroom_id.exists' => 'Uno de los aulas seleccionadas no es válida.',
         ]);
 
@@ -216,7 +253,8 @@ class ManualScheduleAssignment extends Component
             });
 
             if (empty($selectedSchedules)) {
-                throw new \Exception('Debe seleccionar al menos un horario con su aula correspondiente.');
+                // (Opcional) Mejora el mensaje de error
+                throw new \Exception('Debe seleccionar al menos un par completo de horario y aula.');
             }
 
             $this->validateConflicts();
@@ -231,7 +269,7 @@ class ManualScheduleAssignment extends Component
                 $this->createNewAssignments($selectedSchedules, $userSubject);
             }
 
-            session()->flash('message',
+            session()->flash('assignment_message',
                 $this->editing ? 'Asignación actualizada correctamente.' : 'Asignación creada correctamente.'
             );
 
@@ -252,7 +290,7 @@ class ManualScheduleAssignment extends Component
             ->get();
 
         $existingScheduleIds = [];
-        $processedSchedules = [];
+//        $processedSchedules = [];
 
         // Actualizar o crear asignaciones
         foreach ($selectedSchedules as $schedule) {
@@ -268,7 +306,7 @@ class ManualScheduleAssignment extends Component
                 if ($existingAssignment) {
                     // Ya existe, mantenerla
                     $existingScheduleIds[] = $existingAssignment->id;
-                    $processedSchedules[] = $existingAssignment;
+                  //  $processedSchedules[] = $existingAssignment;
                 } else {
                     // Crear nueva asignación
                     $newAssignment = Assignment::create([
@@ -280,7 +318,7 @@ class ManualScheduleAssignment extends Component
                         'academic_management_id' => $this->form->academic_id,
                     ]);
                     $existingScheduleIds[] = $newAssignment->id;
-                    $processedSchedules[] = $newAssignment;
+                   // $processedSchedules[] = $newAssignment;
                 }
             }
         }
@@ -294,6 +332,7 @@ class ManualScheduleAssignment extends Component
 
     private function createNewAssignments(array $selectedSchedules, UserSubject $userSubject): void
     {
+        //dd($this->all());
         foreach ($selectedSchedules as $schedule) {
             if ($schedule['day_schedule_id'] && $schedule['classroom_id']) {
                 Assignment::create([
@@ -307,9 +346,13 @@ class ManualScheduleAssignment extends Component
             }
         }
     }
+
+    /**
+     * @throws Exception
+     */
     private function validateConflicts(): void
     {
-        $selectedSchedules = array_filter($this->schedulesByDay, function ($schedule) {
+        $selectedSchedules = array_filter($this->schedules, function ($schedule) {
             return !empty($schedule['day_schedule_id']) && !empty($schedule['classroom_id']);
         });
 
@@ -381,13 +424,13 @@ class ManualScheduleAssignment extends Component
 
     private function resetSchedules(): void
     {
-        $this->schedulesByDay = [
-            'Lunes' => ['day_schedule_id' => null, 'classroom_id' => null],
-            'Martes' => ['day_schedule_id' => null, 'classroom_id' => null],
-            'Miércoles' => ['day_schedule_id' => null, 'classroom_id' => null],
-            'Jueves' => ['day_schedule_id' => null, 'classroom_id' => null],
-            'Viernes' => ['day_schedule_id' => null, 'classroom_id' => null],
-            'Sábado' => ['day_schedule_id' => null, 'classroom_id' => null],
+        $this->schedules = [
+            ['day_schedule_id' => null, 'classroom_id' => null],
+            ['day_schedule_id' => null, 'classroom_id' => null],
+            ['day_schedule_id' => null, 'classroom_id' => null],
+            ['day_schedule_id' => null, 'classroom_id' => null],
+            ['day_schedule_id' => null, 'classroom_id' => null],
+            ['day_schedule_id' => null, 'classroom_id' => null],
         ];
     }
 
@@ -400,22 +443,6 @@ class ManualScheduleAssignment extends Component
     {
         $this->search = '';
         $this->resetPage();
-    }
-
-    // Obtener horarios disponibles para un día específico
-    public function getSchedulesForDay(string $dayName): array
-    {
-        // Si no existe el día en el mapeo, retornar array vacío
-        if (!isset($this->daySchedulesByDayName[$dayName])) {
-            return [];
-        }
-
-        $schedules = [];
-        foreach ($this->daySchedulesByDayName[$dayName] as $daySchedule) {
-            $schedules[] = $daySchedule;
-        }
-
-        return $schedules;
     }
 }
 
