@@ -25,6 +25,12 @@ class AttendanceQrManager extends Component
 
     protected $listeners = ['refreshComponent' => '$refresh'];
 
+    public function mount()
+    {
+        // Ejecutar el comando de marcar ausencias automáticamente al cargar la página
+        $this->markAbsentAttendances();
+    }
+
     public function render(): View
     {
         $todayAssignments = $this->getTodayAssignments();
@@ -58,6 +64,18 @@ class AttendanceQrManager extends Component
             'pendingAssignments' => $pendingAssignments,
             'completedAssignments' => $completedAssignments
         ]);
+    }
+
+    /**
+     * Marcar automáticamente las ausencias de clases expiradas
+     */
+    private function markAbsentAttendances()
+    {
+        try {
+            \Artisan::call('attendance:mark-absent');
+        } catch (\Exception $e) {
+            \Log::error('Error al ejecutar attendance:mark-absent: ' . $e->getMessage());
+        }
     }
 
     /**
