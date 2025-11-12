@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DaySchedule extends Model
 {
+    use Auditable;
+    
     protected $fillable = [
         'day_id',
         'schedule_id',

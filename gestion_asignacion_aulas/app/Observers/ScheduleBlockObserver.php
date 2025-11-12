@@ -2,24 +2,18 @@
 
 namespace App\Observers;
 
-use App\Auditable;
 use App\Models\DaySchedule;
 use Carbon\Carbon;
 
 class ScheduleBlockObserver
 {
-    use Auditable;
     /**
      * Handle the DaySchedule "created" event.
      */
     public function created(DaySchedule $daySchedule): void
     {
-        $dayName = $daySchedule->day->name;
-        $start = $daySchedule->schedule->start;
-        $end = $daySchedule->schedule->end;
-
-        $this->logAction('created', $daySchedule,
-            "A creado al horario { $dayName }, [ $start - $end ]");
+        // La auditoría automática del trait Auditable se encarga de esto
+        // No necesitamos hacer nada manualmente aquí
     }
 
     /**
@@ -27,12 +21,7 @@ class ScheduleBlockObserver
      */
     public function updated(DaySchedule $daySchedule): void
     {
-        $dayName = $daySchedule->day->name;
-        $start = $daySchedule->schedule->start;
-        $end = $daySchedule->schedule->end;
-
-        $this->logAction('updated', $daySchedule,
-            "A actualizado al horario { $dayName }, [ $start - $end ]");
+        // La auditoría automática del trait Auditable se encarga de esto
     }
 
     /**
@@ -40,12 +29,7 @@ class ScheduleBlockObserver
      */
     public function deleted(DaySchedule $daySchedule): void
     {
-        $dayName = $daySchedule->day->name;
-        $start = $daySchedule->schedule->start;
-        $end = $daySchedule->schedule->end;
-
-        $this->logAction('deleted', $daySchedule,
-            "A eliminado al horario { $dayName }, [ $start - $end ]");
+        // La auditoría automática del trait Auditable se encarga de esto
     }
 
     /**

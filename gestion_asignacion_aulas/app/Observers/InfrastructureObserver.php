@@ -2,48 +2,51 @@
 
 namespace App\Observers;
 
-use App\Auditable;
 use App\Models\Module;
 
 class InfrastructureObserver
 {
     /**
      * Handle the Module "created" event.
+     * El trait Auditable en el modelo Module maneja el registro automáticamente.
      */
-    use Auditable;
     public function created(Module $module): void
     {
-        $this->logAction('created', $module, "A creado al modulo { $module->code }");
+        // Auditable trait handles this
     }
 
     /**
      * Handle the Module "updated" event.
+     * El trait Auditable en el modelo Module maneja el registro automáticamente.
      */
     public function updated(Module $module): void
     {
-        $this->logAction('updated', $module, "Actualizo al modulo {  $module->code  }");
+        // Auditable trait handles this
     }
 
     /**
      * Handle the Module "deleted" event.
+     * El trait Auditable en el modelo Module maneja el registro automáticamente.
      */
     public function deleted(Module $module): void
     {
-        $this->logAction('deleted', $module, "Eliminada al modulo {  $module->code }");
+        // Auditable trait handles this
     }
 
     /**
      * Handle the Module "restored" event.
+     * El trait Auditable en el modelo Module maneja el registro automáticamente.
      */
     public function restored(Module $module): void
     {
-        $this->logAction('restored', $module, "Restauro al modulo {  $module->code }");
+        // Auditable trait handles this
     }
 
     /**
      * Handle the Module "force deleted" event.
      */
-    public function forceDeleted(): void
+    public function forceDeleted(Module $module): void
     {
+        // Auditable trait handles this
     }
 }

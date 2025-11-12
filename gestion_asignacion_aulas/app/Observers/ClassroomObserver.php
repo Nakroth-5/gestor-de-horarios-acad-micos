@@ -2,48 +2,51 @@
 
 namespace App\Observers;
 
-use App\Auditable;
 use App\Models\Classroom;
 
 class ClassroomObserver
 {
     /**
      * Handle the Classroom "created" event.
+     * El trait Auditable en el modelo Classroom maneja el registro automáticamente.
      */
-    use Auditable;
     public function created(Classroom $classroom): void
     {
-        $this->logAction('created', $classroom, "A creado a la clase { $classroom->number }");
+        // Auditable trait handles this
     }
 
     /**
      * Handle the Classroom "updated" event.
+     * El trait Auditable en el modelo Classroom maneja el registro automáticamente.
      */
     public function updated(Classroom $classroom): void
     {
-        $this->logAction('updated', $classroom, "Actualizo a la clase {  $classroom->number  }");
+        // Auditable trait handles this
     }
 
     /**
      * Handle the Classroom "deleted" event.
+     * El trait Auditable en el modelo Classroom maneja el registro automáticamente.
      */
     public function deleted(Classroom $classroom): void
     {
-        $this->logAction('deleted', $classroom, "Eliminada a {  $classroom->number }");
+        // Auditable trait handles this
     }
 
     /**
      * Handle the Classroom "restored" event.
+     * El trait Auditable en el modelo Classroom maneja el registro automáticamente.
      */
     public function restored(Classroom $classroom): void
     {
-        $this->logAction('restored', $classroom, "Restauro a {  $classroom->number }");
+        // Auditable trait handles this
     }
 
     /**
      * Handle the Classroom "force deleted" event.
      */
-    public function forceDeleted(): void
+    public function forceDeleted(Classroom $classroom): void
     {
+        // Auditable trait handles this
     }
 }

@@ -12,7 +12,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'role' => \App\Http\Middleware\CheckRole::class,
+        ]);
+        
+        // Aplicar globalmente para redirigir docentes
+        $middleware->append(\App\Http\Middleware\RedirectIfTeacher::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

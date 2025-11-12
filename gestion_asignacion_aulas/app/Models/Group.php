@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Group extends Model
 {
+    use Auditable;
     protected $fillable = [
         'name',
         'university_career_id',

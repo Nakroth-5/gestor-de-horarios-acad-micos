@@ -2,49 +2,51 @@
 
 namespace App\Observers;
 
-use App\Auditable;
 use App\Models\Group;
 
 class GroupObserver
 {
-    use Auditable;
     /**
-     * Handle the yes "created" event.
+     * Handle the Group "created" event.
+     * El trait Auditable en el modelo Group maneja el registro automáticamente.
      */
     public function created(Group $group): void
     {
-        $this->logAction('created', $group, "A creado al grupo { $group->name }");
+        // Auditable trait handles this
     }
 
     /**
-     * Handle the yes "updated" event.
+     * Handle the Group "updated" event.
+     * El trait Auditable en el modelo Group maneja el registro automáticamente.
      */
     public function updated(Group $group): void
     {
-        $this->logAction('update', $group, "A actualizado al grupo { $group->name }");
+        // Auditable trait handles this
     }
 
     /**
-     * Handle the yes "deleted" event.
+     * Handle the Group "deleted" event.
+     * El trait Auditable en el modelo Group maneja el registro automáticamente.
      */
     public function deleted(Group $group): void
     {
-        $this->logAction('delete', $group, "A eliminado al grupo { $group->name }");
+        // Auditable trait handles this
     }
 
     /**
-     * Handle the yes "restored" event.
+     * Handle the Group "restored" event.
+     * El trait Auditable en el modelo Group maneja el registro automáticamente.
      */
     public function restored(Group $group): void
     {
-        //
+        // Auditable trait handles this
     }
 
     /**
-     * Handle the yes "force deleted" event.
+     * Handle the Group "force deleted" event.
      */
     public function forceDeleted(Group $group): void
     {
-        //
+        // Auditable trait handles this
     }
 }

@@ -23,38 +23,64 @@ use Illuminate\Support\Facades\Route;
 use App\Livewire\AcademicProcesses\TeacherSubjectManager;
 
 Route::get('/', function () {
-    return redirect('login');
+    if (auth()->check()) {
+        $user = auth()->user();
+        
+        // Si es solo docente, redirigir a su horario
+        if ($user->hasRole('Docente') && !$user->hasRole('Administrador')) {
+            return redirect()->route('my-schedule.index');
+        }
+        
+        // Si es administrador, redirigir al dashboard
+        if ($user->hasRole('Administrador')) {
+            return redirect()->route('dashboard');
+        }
+        
+        // Por defecto, ir al dashboard
+        return redirect()->route('dashboard');
+    }
+    
+    return redirect()->route('login');
 });
 
 Route::get('/dashboard', function () {
     return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified', 'role:Administrador'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+    // Rutas de perfil - accesibles para todos
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::get('/user', UserManager::class)->name('user.index');
-    Route::get('/role', RoleManager::class)->name('role.index');
-    Route::get('/subject', SubjectManager::class)->name('subject.index');
-    Route::get('/teacher-subject', TeacherSubjectManager::class)->name('teacher-subject.index');
-
-    Route::get('/academic-logistics/infrastructure', InfrastructureManager::class)->name('infrastructure.index');
-    Route::get('/academic-logistics/classroom', ClassroomManager::class)->name('classroom.index');
-    Route::get('/academic-logistics/schedule-block', ScheduleBlockManager::class)->name('schedule-block.index');
-    Route::get('/academic-logistics/manual-schedule-assignment', ManualScheduleAssignment::class)->name('manual-schedule-assignment.index');
-    Route::get('/academic-logistics/attendance', AttendanceQrManager::class)->name('attendance.index');
-    Route::get('/academic-logistics/special-reservations', SpecialReservationManager::class)->name('special-reservations.index');
-
-    Route::get('/academic-process/academic-periods', AcademicPeriodManager::class)->name('academic-periods.index');
+    
+    // Ruta de horario personal - accesible para docentes
     Route::get('/my-schedule', TeacherScheduleView::class)->name('my-schedule.index');
     
-    Route::get('/academic-management/university-careers', UniversityCareerManager::class)->name('university-careers.index');
+    // Rutas compartidas - accesibles para Docentes y Administradores
+    Route::get('/academic-logistics/attendance', AttendanceQrManager::class)->name('attendance.index');
+    Route::get('/academic-logistics/special-reservations', SpecialReservationManager::class)->name('special-reservations.index');
     
-    Route::get('/security-access/auditLog', AuditLogManager::class)->name('auditLog.index');
-    Route::get('/security-access/user-import', UserImport::class)->name('user-import.index');
-    Route::get('/security-access/user-import/template', [UserImportController::class, 'downloadTemplate'])->name('user-import.template');
-    Route::get('/academic-process/group', GroupManager::class)->name('group.index');
+    // Rutas administrativas - solo para Administradores
+    Route::middleware(['role:Administrador'])->group(function () {
+        Route::get('/user', UserManager::class)->name('user.index');
+        Route::get('/role', RoleManager::class)->name('role.index');
+        Route::get('/subject', SubjectManager::class)->name('subject.index');
+        Route::get('/teacher-subject', TeacherSubjectManager::class)->name('teacher-subject.index');
+
+        Route::get('/academic-logistics/infrastructure', InfrastructureManager::class)->name('infrastructure.index');
+        Route::get('/academic-logistics/classroom', ClassroomManager::class)->name('classroom.index');
+        Route::get('/academic-logistics/schedule-block', ScheduleBlockManager::class)->name('schedule-block.index');
+        Route::get('/academic-logistics/manual-schedule-assignment', ManualScheduleAssignment::class)->name('manual-schedule-assignment.index');
+
+        Route::get('/academic-process/academic-periods', AcademicPeriodManager::class)->name('academic-periods.index');
+        Route::get('/academic-process/group', GroupManager::class)->name('group.index');
+        
+        Route::get('/academic-management/university-careers', UniversityCareerManager::class)->name('university-careers.index');
+        
+        Route::get('/security-access/auditLog', AuditLogManager::class)->name('auditLog.index');
+        Route::get('/security-access/user-import', UserImport::class)->name('user-import.index');
+        Route::get('/security-access/user-import/template', [UserImportController::class, 'downloadTemplate'])->name('user-import.template');
+    });
 
     // Rutas de Reportes
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');

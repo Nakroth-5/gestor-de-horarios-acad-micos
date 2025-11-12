@@ -2,42 +2,44 @@
 
 namespace App\Observers;
 
-use App\Auditable;
 use App\Models\Subject;
 
 class SubjectObserver
 {
-    use Auditable;
     /**
      * Handle the Subject "created" event.
+     * El trait Auditable en el modelo Subject maneja el registro automáticamente.
      */
     public function created(Subject $subject): void
     {
-        $this->logAction('created', $subject, "A creado la materia { $subject->name }");
+        // Auditable trait handles this
     }
 
     /**
      * Handle the Subject "updated" event.
+     * El trait Auditable en el modelo Subject maneja el registro automáticamente.
      */
     public function updated(Subject $subject): void
     {
-        $this->logAction('update', $subject, "A actualizado la materia { $subject->name }");
+        // Auditable trait handles this
     }
 
     /**
      * Handle the Subject "deleted" event.
+     * El trait Auditable en el modelo Subject maneja el registro automáticamente.
      */
     public function deleted(Subject $subject): void
     {
-        $this->logAction('delete', $subject, "A eliminado la materia { $subject->name }");
+        // Auditable trait handles this
     }
 
     /**
      * Handle the Subject "restored" event.
+     * El trait Auditable en el modelo Subject maneja el registro automáticamente.
      */
     public function restored(Subject $subject): void
     {
-        //
+        // Auditable trait handles this
     }
 
     /**
@@ -45,6 +47,6 @@ class SubjectObserver
      */
     public function forceDeleted(Subject $subject): void
     {
-        //
+        // Auditable trait handles this
     }
 }

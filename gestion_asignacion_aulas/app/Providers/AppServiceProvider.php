@@ -43,7 +43,7 @@ class AppServiceProvider extends ServiceProvider
         Module::observe(InfrastructureObserver::class);
         Classroom::observe(ClassroomObserver::class);
         Group::observe(GroupObserver::class);
-        DaySchedule::observe(ScheduleBlockObserver::class);
+        // DaySchedule::observe(ScheduleBlockObserver::class); // Ahora usa Auditable trait
         Subject::observe(SubjectObserver::class);
 
     }

@@ -17,6 +17,18 @@ Schedule::call(function () {
     }
 })->daily()->at('02:00')->name('cleanup-expired-qr-tokens');
 
+// Generar registros de asistencia para todas las clases del día
+Schedule::command('attendance:generate-daily')
+    ->dailyAt('05:00') // A las 5:00 AM se crean los registros del día
+    ->name('generate-daily-attendance-records')
+    ->withoutOverlapping()
+    ->onSuccess(function () {
+        \Log::info('Registros de asistencia diarios generados exitosamente');
+    })
+    ->onFailure(function () {
+        \Log::error('Error al generar registros de asistencia diarios');
+    });
+
 // Marcar automáticamente asistencias ausentes al final de cada hora
 Schedule::command('attendance:mark-absent')
     ->hourly()
