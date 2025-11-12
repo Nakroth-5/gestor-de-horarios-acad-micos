@@ -77,6 +77,11 @@ class User extends Authenticatable
         return $this->hasMany(AuditLog::class);
     }
 
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(Notification::class);
+    }
+
     // Helper methods
     public function hasRole($roleName): bool
     {

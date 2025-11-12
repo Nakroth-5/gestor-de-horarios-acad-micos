@@ -48,11 +48,14 @@ class UserSeeder extends Seeder
             "SELAYA GARVIZU IVAN VLADISHLAV", "FLORES CUELLAD DAVID LUIS", "LOBO LIMPIAS VICTOR HUGO",*/
         ];
 
-        foreach (array_unique($docentes) as $fullName) {
+        $adminRole = \App\Models\Role::where('name', 'Administrador')->first();
+        $docenteRole = \App\Models\Role::where('name', 'Docente')->first();
+
+        foreach (array_unique($docentes) as $index => $fullName) {
             $names = $this->splitName($fullName);
             $email = Str::slug($names['name'] . ' ' . $names['last_name'], '.') . '@example.com';
 
-            User::firstOrCreate(
+            $user = User::firstOrCreate(
                 ['email' => $email],
                 [
                     'name' => $names['name'],
@@ -63,22 +66,39 @@ class UserSeeder extends Seeder
                     'document_number' => (string)rand(1000000, 9999999),
                 ]
             );
+
+            // Asignar rol: Administrador al primero (ID=1), Docente a los demás
+            if ($user->id === 1 && $adminRole) {
+                $user->roles()->syncWithoutDetaching([$adminRole->id]);
+            } elseif ($docenteRole) {
+                $user->roles()->syncWithoutDetaching([$docenteRole->id]);
+            }
         }
     }
 
     /**
      * Splits a full name into last_name and name.
      * Assumes first two words are last_name, rest is name.
+     * Formats names with first letter uppercase, rest lowercase.
      */
     private function splitName(string $fullName): array
     {
         if ($fullName === 'POR DESIGNAR') {
-            return ['last_name' => 'POR', 'name' => 'DESIGNAR'];
+            return ['last_name' => 'Por', 'name' => 'Designar'];
         }
 
         $parts = explode(' ', $fullName);
+        
+        // Convertir cada palabra: primera letra mayúscula, resto minúsculas
+        $parts = array_map(function($word) {
+            return ucfirst(strtolower($word));
+        }, $parts);
+
         if (count($parts) <= 2) {
-            return ['last_name' => $parts[0], 'name' => $parts[1] ?? ''];
+            return [
+                'last_name' => $parts[0],
+                'name' => $parts[1] ?? ''
+            ];
         }
 
         return [
