@@ -83,6 +83,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/security-access/auditLog', AuditLogManager::class)->name('auditLog.index');
         Route::get('/security-access/user-import', UserImport::class)->name('user-import.index');
         Route::get('/security-access/user-import/template', [UserImportController::class, 'downloadTemplate'])->name('user-import.template');
+
     });
 
     // Rutas de Reportes
