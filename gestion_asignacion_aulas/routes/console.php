@@ -17,9 +17,9 @@ Schedule::call(function () {
     }
 })->daily()->at('02:00')->name('cleanup-expired-qr-tokens');
 
-// Marcar automáticamente asistencias ausentes al final de cada hora
+// Marcar automáticamente asistencias ausentes cada 5 minutos
 Schedule::command('attendance:mark-absent')
-    ->hourly()
+    ->everyThreeMinutes()
     ->between('06:00', '22:00') // Solo en horario laboral/académico
     ->name('mark-absent-attendances')
     ->withoutOverlapping()
