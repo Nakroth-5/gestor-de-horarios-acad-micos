@@ -277,11 +277,11 @@
                                                 Aula {{ $assignment->classroom->number }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                @if($isMarked)
+                                                @if($attendanceRecord)
                                                     {!! $attendanceRecord->getStatusBadge() !!}
                                                 @else
                                                     <span class="px-2 py-1 text-xs font-semibold text-gray-600 bg-gray-200 dark:bg-gray-700 dark:text-gray-300 rounded-full">
-                                                        Expirada
+                                                        Sin registro
                                                     </span>
                                                 @endif
                                             </td>
