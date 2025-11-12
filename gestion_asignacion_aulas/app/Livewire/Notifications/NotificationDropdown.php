@@ -1,0 +1,77 @@
+<?php
+
+namespace App\Livewire\Notifications;
+
+use App\Models\Notification;
+use Livewire\Component;
+
+class NotificationDropdown extends Component
+{
+    public $showDropdown = false;
+    public $notifications = [];
+    public $unreadCount = 0;
+
+    public function mount()
+    {
+        $this->loadNotifications();
+    }
+
+    public function loadNotifications()
+    {
+        $this->notifications = Notification::where('user_id', auth()->id())
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+
+        $this->unreadCount = Notification::where('user_id', auth()->id())
+            ->whereNull('read_at')
+            ->count();
+    }
+
+    public function toggleDropdown()
+    {
+        $this->showDropdown = !$this->showDropdown;
+        if ($this->showDropdown) {
+            $this->loadNotifications();
+        }
+    }
+
+    public function markAsRead($notificationId)
+    {
+        $notification = Notification::find($notificationId);
+        if ($notification && $notification->user_id === auth()->id()) {
+            $notification->markAsRead();
+            $this->loadNotifications();
+        }
+    }
+
+    public function markAllAsRead()
+    {
+        $notifications = Notification::where('user_id', auth()->id())
+            ->whereNull('read_at')
+            ->get();
+
+        foreach ($notifications as $notification) {
+            $notification->markAsRead();
+        }
+
+        $this->loadNotifications();
+    }
+
+    public function goToNotification($notificationId)
+    {
+        $notification = Notification::find($notificationId);
+        if ($notification && $notification->user_id === auth()->id()) {
+            // Cerrar dropdown
+            $this->showDropdown = false;
+
+            // Redirigir a la vista individual de la notificación
+            return $this->redirect(route('notifications.view', ['id' => $notificationId]), navigate: true);
+        }
+    }
+
+    public function render()
+    {
+        return view('livewire.notifications.notification-dropdown');
+    }
+}

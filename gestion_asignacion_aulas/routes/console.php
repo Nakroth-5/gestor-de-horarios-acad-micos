@@ -31,7 +31,7 @@ Schedule::command('attendance:generate-daily')
 
 // Marcar automáticamente asistencias ausentes al final de cada hora
 Schedule::command('attendance:mark-absent')
-    ->hourly()
+    ->everyThreeMinutes()
     ->between('06:00', '22:00') // Solo en horario laboral/académico
     ->name('mark-absent-attendances')
     ->withoutOverlapping()

@@ -16,7 +16,10 @@
                 </svg>
             </button>
 
-            <div class="flex items-center sm:ms-6">
+            <div class="flex items-center gap-4 sm:ms-6">
+                {{-- Dropdown de notificaciones --}}
+                @livewire('notifications.notification-dropdown')
+                {{-- Dropdown de usuario --}}
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         {{-- Trigger con efectos hover --}}
