@@ -23,6 +23,12 @@
         {{ $slot }}
     </main>
 </div>
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
 @livewireScripts
+
+<!-- Scripts adicionales de componentes -->
+@stack('scripts')
 </body>
 </html>
